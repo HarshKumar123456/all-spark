@@ -21,6 +21,7 @@ import specialAccessRouter from "./routes/v1/special-access.js";
 import submissionRouter from "./routes/v1/submissions.js";
 import supportTicketsRouter from "./routes/v1/support-tickets.js";
 import usersRouter from "./routes/v1/users.js";
+import { clientConnectedOrNotMiddleware } from "./middlewares/v1/websocket.js";
 
 const PORT = process.env.PORT || 8000;
 const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
@@ -33,7 +34,7 @@ const initialConfigurations = async () => {
   try {
 
     // Initialize the Kafka Topics
-    await initializeTopics()
+    await initializeTopics();
 
     // Connect the Producer
     await connectProducer();
@@ -55,6 +56,9 @@ app.use(cors());
 
 // To access req.body
 app.use(express.json());
+
+// To Make Sure Client Is Connected Via Websocket
+app.use( "/api/v1", clientConnectedOrNotMiddleware);
 
 
 // Web Socket Connection Configuration
@@ -148,7 +152,8 @@ app.get("/default", async (req, res) => {
 
 server.listen(PORT, async () => {
 
-  console.log('listening on *:', PORT);
+  console.log("API GW: Listening on the Port: ", PORT, `http://localhost:${PORT}`);
+
   await initialConfigurations();
 
 });

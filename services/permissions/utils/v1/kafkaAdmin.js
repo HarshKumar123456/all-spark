@@ -11,15 +11,15 @@ This file is responsible for creating the Kafka Topics for more information read
 */
 
 
-const defaultNumberOfPartitions = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
+const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
 
 const hasSubArrayElements = (masterArray, subArray) => {
     // console.log("Checking the Master and Sub Array: ", masterArray, " 007 ", subArray);
-    
-    for(let index = 0; index < subArray.length; index++) {
+
+    for (let index = 0; index < subArray.length; index++) {
         if (masterArray.includes(subArray[index]) === false) {
             // console.log("Returning false as ",  subArray[index], " not in ", masterArray);
-            
+
             return false;
         }
     }
@@ -32,7 +32,12 @@ const initializeTopics = async () => {
 
         // List of Topics Should be present in the Kafka Queue to make sure the API Works Correctly
         const listOfTopicsNeeded = [
-            "request", 
+            "permissions.check",
+            "permissions.control.search", 
+            "permissions.control.getPermission", 
+            "permissions.control.create", 
+            "permissions.control.update", 
+            "permissions.control.delete",
         ];
 
         const admin = kafka.admin();
@@ -43,21 +48,24 @@ const initializeTopics = async () => {
         // If Topics are not there then do create them
         const allTopics = await admin.listTopics();
         // console.log("All Kafka Topics: ", allTopics.toString(), " 007 ", allTopics);
-        
+
         const topicsExistsAlready = await hasSubArrayElements(allTopics, listOfTopicsNeeded);
 
         if (topicsExistsAlready === false) {
 
-            console.log("Creating Topics [request, ]");
-            await admin.createTopics({
-                topics: [
-                    {
-                        topic: "request",
-                        numPartitions: defaultNumberOfPartitions,
-                    },
-                ],
+            console.log("Creating Topics ", listOfTopicsNeeded);
+
+            // Preparing the Array of Object with configurations needed for each topic if required to change configurations for each topic then use of another array with full configurations seperately for each topic can be there
+            const listOfTopicsToCreate = listOfTopicsNeeded.map((topicName) => {
+                return {
+                    topic: topicName,
+                    numPartitions: DEFAULT_PARTITIONS_OF_KAFKA_TOPICS,
+                };
             });
-            console.log("Topic Created Success [request, ]");
+            await admin.createTopics({
+                topics: listOfTopicsToCreate,
+            });
+            console.log("Topic Created Success ", listOfTopicsToCreate);
         }
 
         console.log("Disconnecting Kafka Admin..");
