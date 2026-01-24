@@ -3,9 +3,9 @@ import { kafka } from "../../config/v1/kafka.js";
 import Permission from "../../models/v1/permissions.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
 import { sendEvent } from "../../utils/v1/kafkaProducer.js";
+import getPartition from "../../utils/v1/getPartition.js";
 
 
-const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
 const CURR_SERVICE_NAME = "permission-service";
 
 
@@ -64,7 +64,7 @@ const checkIfPermitted = async (data, metadata) => {
             }
 
 
-            let partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+            let partition = getPartition();
 
             if (permission.roles.includes(metadata.actor.role) === true) {
                 await sendEvent(permission.nextTopicToPublish, partition, data, metadata);
@@ -225,7 +225,6 @@ const createNewPermission = async (data, metadata) => {
         //     description: <description>,
         //     nextTopicToPublish: <nextTopicToPublish>,
         //     roles: <roles>,
-        //     created_by: <created_by>,
         // };
 
 
@@ -249,13 +248,16 @@ const createNewPermission = async (data, metadata) => {
         // };
 
         // If These request have come from the PERMISSION SERVICE then Indeed they are some Control Panel Operations thus Send Response Back To the User who initiated these request
+
+        const created_by = metadata.actor.userId;
+
         if (metadata.source === "permission-service") {
             const permissionData = {
                 name: data.name,
                 description: data.description,
                 nextTopicToPublish: data.nextTopicToPublish,
                 roles: data.roles,
-                created_by: data.created_by,
+                created_by: created_by,
             };
 
             const permission = await new Permission(permissionData).save();
@@ -324,17 +326,18 @@ const updatePermissionDetails = async (data, metadata) => {
         // };
 
         // If These request have come from the PERMISSION SERVICE then Indeed they are some Control Panel Operations thus Send Response Back To the User who initiated these request
+        const created_by = metadata.actor.userId;
         if (metadata.source === "permission-service") {
             const updatedPermissionData = {
                 name: data.name,
                 description: data.description,
                 nextTopicToPublish: data.nextTopicToPublish,
                 roles: data.roles,
-                created_by: data.created_by,
             };
 
             const filter = {
                 _id: data._id,
+                created_by: created_by,
             };
 
             const permission = await Permission.findOneAndUpdate(filter, updatedPermissionData);
@@ -396,9 +399,11 @@ const deleteSpecificPermission = async (data, metadata) => {
 
         // If These request have come from the PERMISSION SERVICE then Indeed they are some Control Panel Operations thus Send Response Back To the User who initiated these request
         if (metadata.source === "permission-service") {
+            const created_by = metadata.actor.userId;
            
             const filter = {
                 _id: data._id,
+                created_by: created_by,
             };
 
             const permission = await Permission.findOneAndDelete(filter);

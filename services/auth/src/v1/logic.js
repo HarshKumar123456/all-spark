@@ -3,12 +3,11 @@ import { sendEvent } from "../../../permissions/utils/v1/kafkaProducer.js";
 import { kafka } from "../../config/v1/kafka.js";
 import { signToken, verifyToken } from "../../utils/v1/jwt.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
+import getPartition from "../../utils/v1/getPartition.js";
 
 
-const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
 const CURR_SERVICE_NAME = "auth-service";
 
-// PLEASE NOTE: CACHING is YET TO BE IMPLEMENTED
 
 
 
@@ -47,14 +46,13 @@ const checkIdentity = async (data, metadata) => {
         // Else the User is New and trying to Signup or Login
         const token = metadata?.actor?.token || "";
         // console.log("\nGot Token: ", token , " \n\n");
-        const operation = metadata?.operation || "";
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         // Update Source Of Event 
         metadata.source = CURR_SERVICE_NAME;
         const { isTokenVerified, userData } = verifyToken(token);
         // console.log("\nIn Auth Service before if: ", userData);
-        if (token && isTokenVerified && metadata.actor.role === userData.role) {
+        if (token && isTokenVerified) {
             // console.log("\nIn Auth Service in If: ", userData);
             metadata.actor = { ...(metadata.actor), ...userData };
         }
@@ -68,6 +66,15 @@ const checkIdentity = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in AUTH SERVICE while Checking Identity....");
+
+        metadata.success = false;
+        metadata.message = "Something Went Wrong while Verifying Your Indentity. Please Login Again....";
+
+        metadata.source = CURR_SERVICE_NAME;
+        metadata.updatedAt = (new Date()).toISOString();
+
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 
 };
@@ -110,7 +117,7 @@ const handleSignup = async (data, metadata) => {
         // Else Send Response that User Data is not Valid
 
         // PLEASE NOTE: Additional Check such That Validity of email or mobile no. can be done in later Implementations for now just check if it is there or not for creating the user just that however can be upgraded.
-        let partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        let partition = getPartition();
         let { name, user_name, email, password, mobile_no } = data;
 
 
@@ -137,6 +144,15 @@ const handleSignup = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in AUTH SERVICE while Handling Signup....");
+
+        metadata.success = false;
+        metadata.message = "Something Went Wrong while Signing Up. Please Try Again....";
+
+        metadata.source = CURR_SERVICE_NAME;
+        metadata.updatedAt = (new Date()).toISOString();
+
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 };
 
@@ -145,6 +161,7 @@ const issueJWT = async (data, metadata) => {
     try {
         // const data = { 
         //         result: {
+        //             _id: <_id>,
         //             name: <name>,
         //             user_name: <user_name>,
         //             email: <email>,
@@ -173,6 +190,7 @@ const issueJWT = async (data, metadata) => {
         // };
 
         const userData = {
+            userId: data.result._id,
             name: data.result.name,
             role: data.result.role,
             user_name: data.result.user_name,
@@ -198,6 +216,15 @@ const issueJWT = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in AUTH SERVICE while Issuing JWT....");
+
+        metadata.success = false;
+        metadata.message = "Something Went Wrong while Issuing JWT Token. Please Login Again....";
+
+        metadata.source = CURR_SERVICE_NAME;
+        metadata.updatedAt = (new Date()).toISOString();
+
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 };
 
@@ -242,7 +269,7 @@ const handleLogin = async (data, metadata) => {
             return;
         }
 
-        let partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        let partition = getPartition();
 
         if (metadata.source === "permission-service") {
 
@@ -255,6 +282,15 @@ const handleLogin = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in AUTH SERVICE while Handling Login....");
+
+        metadata.success = false;
+        metadata.message = "Something Went Wrong while Logging in. Please Login Again....";
+
+        metadata.source = CURR_SERVICE_NAME;
+        metadata.updatedAt = (new Date()).toISOString();
+
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 };
 

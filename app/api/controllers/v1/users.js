@@ -1,10 +1,10 @@
 import "dotenv/config";
 import { v4 as uuidv4 } from "uuid";
 import { sendEvent } from "../../utils/v1/kafkaProducer.js";
+import getPartition from "../../utils/v1/getPartition.js";
 
 
 const CURR_SERVICE_NAME = "api";
-const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
 const DEFAULT_TOPIC_TO_PUBLISH = process.env.DEFAULT_TOPIC_TO_PUBLISH || "request";
 
 
@@ -20,46 +20,46 @@ const searchUsersController = async (req, res) => {
         const createdAt = (new Date()).toISOString();
 
         const userToken = req.headers.authorization;
-        const userRole = req.get("user-role");
-        const userId = req.get("user-id");
-        const userName = req.get("user-name");
 
         const data = {
-            filter: {},
+            filter: {
+                $or: [],
+                $and: [],
+            },
         };
 
 
         if (name) {
             const nameFilterCondition = {
-                $regex: name, $options: 'i'
+                name: { $regex: name, $options: 'i' },
             };
             data.filter.$or = [...(data.filter.$or), nameFilterCondition];
         }
 
         if (user_name) {
             const userNameFilterCondition = {
-                $regex: description, $options: 'i'
+                user_name: { $regex: user_name, $options: 'i' },
             };
             data.filter.$or = [...(data.filter.$or), userNameFilterCondition];
         }
 
         if (email) {
             const emailFilterCondition = {
-                $regex: description, $options: 'i'
+                email: { $regex: email, $options: 'i' },
             };
             data.filter.$or = [...(data.filter.$or), emailFilterCondition];
         }
 
         if (password) {
             const passwordFilterCondition = {
-                $regex: description, $options: 'i'
+                password: { $regex: password, $options: 'i' },
             };
             data.filter.$or = [...(data.filter.$or), passwordFilterCondition];
         }
 
         if (mobile_no) {
             const mobileNoFilterCondition = {
-                $regex: description, $options: 'i'
+                mobile: { $regex: description, $options: 'i' },
             };
             data.filter.$or = [...(data.filter.$or), mobileNoFilterCondition];
         }
@@ -71,10 +71,7 @@ const searchUsersController = async (req, res) => {
             clientId: clientId, // This is Websocket Id Which will be used for sending back the data to the client
             requestId: requestId, // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
             actor: {
-                userId: userId,
-                role: userRole,
                 token: userToken,
-                user_name: userName,
             },
             operation: "users.control.search", // This will tell about what initial request was and processing will be done as per this 
             createdAt: createdAt, // Time when this request was created
@@ -86,7 +83,7 @@ const searchUsersController = async (req, res) => {
         };
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
         return res.status(202).json({
@@ -131,9 +128,6 @@ const getSpecificUserDetailsController = async (req, res) => {
         const createdAt = (new Date()).toISOString();
 
         const userToken = req.headers.authorization;
-        const userRole = req.get("user-role");
-        const userId = req.get("user-id");
-        const userName = req.get("user-name");
 
 
         const data = {
@@ -147,10 +141,7 @@ const getSpecificUserDetailsController = async (req, res) => {
             clientId: clientId, // This is Websocket Id Which will be used for sending back the data to the client
             requestId: requestId, // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
             actor: {
-                userId: userId,
-                role: userRole,
                 token: userToken,
-                user_name: userName,
             },
             operation: "users.getUser", // This will tell about what initial request was and processing will be done as per this 
             createdAt: createdAt, // Time when this request was created
@@ -162,7 +153,7 @@ const getSpecificUserDetailsController = async (req, res) => {
         };
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
         return res.status(202).json({
@@ -207,9 +198,6 @@ const createNewUserController = async (req, res) => {
         const createdAt = (new Date()).toISOString();
 
         const userToken = req.headers.authorization;
-        const userRole = req.get("user-role");
-        const userId = req.get("user-id");
-        const userName = req.get("user-name");
 
 
         const data = {
@@ -227,10 +215,7 @@ const createNewUserController = async (req, res) => {
             clientId: clientId, // This is Websocket Id Which will be used for sending back the data to the client
             requestId: requestId, // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
             actor: {
-                userId: userId,
-                role: userRole,
                 token: userToken,
-                user_name: userName,
             },
             operation: "users.control.create", // This will tell about what initial request was and processing will be done as per this 
             createdAt: createdAt, // Time when this request was created
@@ -242,7 +227,7 @@ const createNewUserController = async (req, res) => {
         };
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
         return res.status(202).json({
@@ -317,9 +302,6 @@ const updateUserController = async (req, res) => {
         const createdAt = (new Date()).toISOString();
 
         const userToken = req.headers.authorization;
-        const userRole = req.get("user-role");
-        const userId = req.get("user-id");
-        const userName = req.get("user-name");
 
 
 
@@ -329,10 +311,7 @@ const updateUserController = async (req, res) => {
             clientId: clientId, // This is Websocket Id Which will be used for sending back the data to the client
             requestId: requestId, // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
             actor: {
-                userId: userId,
-                role: userRole,
                 token: userToken,
-                user_name: userName,
             },
             operation: "users.control.update", // This will tell about what initial request was and processing will be done as per this 
             createdAt: createdAt, // Time when this request was created
@@ -344,7 +323,7 @@ const updateUserController = async (req, res) => {
         };
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
         return res.status(202).json({
@@ -388,9 +367,6 @@ const deleteUserController = async (req, res) => {
         const createdAt = (new Date()).toISOString();
 
         const userToken = req.headers.authorization;
-        const userRole = req.get("user-role");
-        const userId = req.get("user-id");
-        const userName = req.get("user-name");
 
 
         const data = {
@@ -404,10 +380,7 @@ const deleteUserController = async (req, res) => {
             clientId: clientId, // This is Websocket Id Which will be used for sending back the data to the client
             requestId: requestId, // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
             actor: {
-                userId: userId,
-                role: userRole,
                 token: userToken,
-                user_name: userName,
             },
             operation: "users.control.delete", // This will tell about what initial request was and processing will be done as per this 
             createdAt: createdAt, // Time when this request was created
@@ -419,7 +392,7 @@ const deleteUserController = async (req, res) => {
         };
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
         return res.status(202).json({

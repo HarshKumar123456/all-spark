@@ -3,9 +3,9 @@ import { kafka } from "../../config/v1/kafka.js";
 import User from "../../models/v1/users.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
 import { sendEvent } from "../../utils/v1/kafkaProducer.js";
+import getPartition from "../../utils/v1/getPartition.js";
 
 
-const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
 const CURR_SERVICE_NAME = "user-service";
 
 
@@ -44,7 +44,7 @@ const createUser = async (data, metadata) => {
         // };
 
         // If User Creation Request came from the Unauthorized User then he or she may want to create the Profile For themselves thus create and Ask the AUTH SERVICE to Issue JWT to that User
-        let partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        let partition = getPartition();
         if (metadata.source === "auth-service") {
 
             // Set Default Role as "USER"
@@ -119,6 +119,10 @@ const createUser = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in USER SERVICE while Creating User....");
+        metadata.success = false;
+        metadata.message = "Something went wrong while Creating User....";
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 
 };
@@ -184,6 +188,10 @@ const searchUsers = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in USER SERVICE while Searching Users....");
+        metadata.success = false;
+        metadata.message = "Something Went Wrong while Searching Users....";
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 
 };
@@ -221,7 +229,7 @@ const getSpecificUserDetails = async (data, metadata) => {
         // };
 
         // If User Get User Request came from the Unauthorized User then he or she may want to Get His Profile For themselves thus get and Ask the AUTH SERVICE to Issue JWT to that User
-        let partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        let partition = getPartition();
         if (metadata.source === "auth-service") {
             const { user_name, email, password } = data;
             const filter = {};
@@ -285,6 +293,10 @@ const getSpecificUserDetails = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in USER SERVICE while Getting Specific User Details....");
+        metadata.success = false;
+        metadata.message = "Something went wrong while Getting Specific User Details....";
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 
 };
@@ -391,6 +403,10 @@ const updateUserDetails = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in USER SERVICE while Updating User's Details....");
+        metadata.success = false;
+        metadata.message = "Something went wrong while Updating User's Details....";
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 
 };
@@ -457,6 +473,10 @@ const deleteSpecificUser = async (data, metadata) => {
     } catch (error) {
         console.log(error);
         console.log("Something went wrong while handling in USER SERVICE while Deleting User's Details....");
+        metadata.success = false;
+        metadata.message = "Something went wrong while Deleting User's Details....";
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
     }
 
 };

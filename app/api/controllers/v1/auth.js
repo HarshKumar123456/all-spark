@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { v4 as uuidv4 } from "uuid";
 import { sendEvent } from "../../utils/v1/kafkaProducer.js";
+import getPartition from "../../utils/v1/getPartition.js";
 
 
 const CURR_SERVICE_NAME = "api";
@@ -57,7 +58,7 @@ const signupController = async (req, res) => {
 
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
 
@@ -127,7 +128,7 @@ const loginController = async (req, res) => {
 
 
         const topic = DEFAULT_TOPIC_TO_PUBLISH;
-        const partition = (Math.floor((Math.random() * 40))) % DEFAULT_PARTITIONS_OF_KAFKA_TOPICS;
+        const partition = getPartition();
 
         await sendEvent(topic, partition, data, metadata);
 

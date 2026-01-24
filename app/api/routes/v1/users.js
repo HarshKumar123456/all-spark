@@ -48,7 +48,7 @@ usersRouter.post("/create", isRegisteredUserTokenIsPresentMiddleware, createNewU
  * @usersRouter /api/v1/users/update
  * @description Update Existing Permission
  * @access private
- * @method GET
+ * @method PUT
  */
 usersRouter.put("/update", isRegisteredUserTokenIsPresentMiddleware, updateUserController);
 
@@ -59,7 +59,7 @@ usersRouter.put("/update", isRegisteredUserTokenIsPresentMiddleware, updateUserC
  * @usersRouter /api/v1/users/delete
  * @description Delete Specific Permission
  * @access private
- * @method GET
+ * @method DELETE
  */
 usersRouter.delete("/delete", isRegisteredUserTokenIsPresentMiddleware, deleteUserController);
 
