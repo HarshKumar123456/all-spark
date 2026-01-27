@@ -118,6 +118,11 @@ const getAllProblems = async (data, metadata) => {
         // If this has been come from the Control Panel Of ADMIN Role Possessing User Thus Send Response That It has been Found Successfully No Need to Issue JWT
 
         const cachingInfo = {};
+        metadata.cache = {
+            hits: 0,
+            misses: 0,
+        };
+
         const filter = {};
         filter.is_public = true;
 
@@ -138,13 +143,13 @@ const getAllProblems = async (data, metadata) => {
             // Search in the Cache If Available then Send via here
             if (isValueFound) {
                 queryResult = value;
-                metadata.cache = "HIT";
+                metadata.cache.hits++;
             }
             else {
                 // Get The List of All Problems and In the list Description and Test Cases Are Unneccessary to send with the response thus Removing them
                 const problem = await Problem.find(filter).select(projection).lean();
                 queryResult = problem;
-                metadata.cache = "MISS";
+                metadata.cache.misses++;
             }
 
 
@@ -220,6 +225,10 @@ const getSpecificProblemDetails = async (data, metadata) => {
         // If this has been come from the Control Panel Of ADMIN Role Possessing User Thus Send Response That It has been Found Successfully No Need to Issue JWT
 
         const cachingInfo = {};
+        metadata.cache = {
+            hits: 0,
+            misses: 0,
+        };
         const { _id, slug } = data;
 
         const filter = {};
@@ -249,7 +258,7 @@ const getSpecificProblemDetails = async (data, metadata) => {
             // Search in the Cache If Available then Send via here
             if (isValueFound) {
                 queryResult = value;
-                metadata.cache = "HIT";
+                metadata.cache.hits++;
             }
             else {
 
@@ -257,7 +266,7 @@ const getSpecificProblemDetails = async (data, metadata) => {
                 const problem = await Problem.findOne(filter).lean();
 
                 queryResult = problem;
-                metadata.cache = "MISS";
+                metadata.cache.misses++;
             }
 
 
