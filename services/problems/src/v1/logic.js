@@ -3,7 +3,7 @@ import { kafka } from "../../config/v1/kafka.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
 import { getAllProblems, getSpecificProblemDetails, searchProblems } from "./handlers/normal.js";
 import { controlCreateProblem, controlDeleteProblem, controlGetSpecificProblemDetails, controlSearchProblems, controlUpdateProblem } from "./handlers/control.js";
-import { getContestProblems } from "./handlers/internal.js";
+import { _systemGetProblemsOfStartedContest } from "./handlers/_system.js";
 
 
 const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
@@ -59,7 +59,7 @@ const consumeEvents = async () => {
             "problems.control.delete": controlDeleteProblem,
 
             // Other Services' Event Update Events
-            "contests.startContest.complete": getContestProblems,
+            "contests.startContest.complete": _systemGetProblemsOfStartedContest,
         };
 
         const consumer = kafka.consumer({ groupId: CURR_SERVICE_NAME });

@@ -129,6 +129,10 @@ const getAllContests = async (data, metadata) => {
         }
 
         const cachingInfo = {};
+        metadata.cache = {
+            hits: 0,
+            misses: 0,
+        };
 
         if (metadata.source === "permission-service") {
 
@@ -141,13 +145,13 @@ const getAllContests = async (data, metadata) => {
             // Search in the Cache If Available then Send via here
             if (isValueFound) {
                 queryResult = value;
-                metadata.cache = "HIT";
+                metadata.cache.hits++;
             }
             else {
                 // Get The List of All Contests and In the List Who is Support that is somewhat unneccessary to send and also problems in that are too unneccessary to send thus remove them and remember that the id are string format however they are actually the Foreign Keys in string form and since we have used lean thus they will not be populated if later implementation tries to populate then please change the DB models before that
                 const contest = await Contest.find(filter).select(projection).lean();
                 queryResult = contest;
-                metadata.cache = "MISS";
+                metadata.cache.misses++;
             }
 
 
@@ -226,6 +230,10 @@ const getSpecificContestDetails = async (data, metadata) => {
 
         const filter = {};
         const cachingInfo = {};
+        metadata.cache = {
+            hits: 0,
+            misses: 0,
+        };
 
         if (_id) {
             filter._id = _id;
@@ -250,7 +258,7 @@ const getSpecificContestDetails = async (data, metadata) => {
             // Search in the Cache If Available then Send via here
             if (isValueFound) {
                 queryResult = value;
-                metadata.cache = "HIT";
+                metadata.cache.hits++;
             }
             else {
 
@@ -258,7 +266,7 @@ const getSpecificContestDetails = async (data, metadata) => {
                 const contest = await Contest.findOne(filter).lean();
 
                 queryResult = contest;
-                metadata.cache = "MISS";
+                metadata.cache.misses++;
             }
 
 
@@ -273,7 +281,8 @@ const getSpecificContestDetails = async (data, metadata) => {
             }
 
             // Set The Successful Result to Cache Not Using Await as we don't want to be Waiting while It Cache Up Things for us we have sent please cache it if it does then ok or else we will try from DB until it set things right up in the cache
-            setToCache(cachingInfo.cacheKey, queryResult, cachingInfo.cacheTTL);
+            setToCache(`contests:v1:_id:${queryResult._id}`, queryResult, cachingInfo.cacheTTL);
+            setToCache(`contests:v1:slug:${queryResult.slug}`, queryResult, cachingInfo.cacheTTL);
 
 
             // Process the data and prepare the Response
@@ -345,7 +354,8 @@ const registerForContest = async (data, metadata) => {
         }
 
         if (metadata.source === "permission-service") {
-
+            
+            metadata.source = CURR_SERVICE_NAME;
 
             // We are considering that the Contest and User with given Id exists thus creating the Participant for that 
             const participantData = {
@@ -366,11 +376,11 @@ const registerForContest = async (data, metadata) => {
 
 
             // Before Creating Object Check if the Contest is Started or not and if started then do not register the User For this Contest
-            const currentDate = new Date();
+            const currentDate = (new Date()).toISOString();
             const findContestFilter = {
                 _id: contest_id,
                 start_time: {
-                    $lt: currentDate,
+                    $gt: currentDate,
                 }
             };
             const contest = await Contest.findOne(findContestFilter);
@@ -383,13 +393,10 @@ const registerForContest = async (data, metadata) => {
                 return;
             }
 
-            // Set Total Duration Allowed from the Contest Duration So that It can be compared later when the User Starts the Contest and Thus User's Contest is Auto Ended and if The User tries to make Submissions then they will be discarded by checking the "end_time" field which will be set post "total_duration" from "start_time" within the Range Of Contest's Running Window
-            participantData.total_duration = contest.duration;
 
             // Register Participant
             const newParticipant = await new Participant(participantData).save();
 
-            metadata.source = CURR_SERVICE_NAME;
             metadata.updatedAt = (new Date()).toISOString();
 
             if (!newParticipant) {
@@ -467,9 +474,67 @@ const startContest = async (data, metadata) => {
 
         if (metadata.source === "permission-service") {
 
+            metadata.source = CURR_SERVICE_NAME;
 
-            // We are considering that the Contest and User with given Id exists thus creating the Participant for that 
             const start_time = new Date();
+
+
+            // At this Point it is Clear that User Have to Either Start Contest or have clicked on again on Start Button thus we have to get the Contest Problems thus have to get the List of Problems' Ids thus get the Problems from the "problems" field of the Contest Thus First of All Get The Contest Object and Put that into the "internal" Field of the "data" that will be used for internal operations
+
+            // This is Objest's Structure for the System's Internal Data Flow unlike everything flowing in the Project this will also tell what data it has and information about that data will be in metadata
+            const _system = {
+                data: {},
+                metadata: {
+                    createdAt: (new Date()).toISOString(),
+                    cache: {
+                        hits: 0,
+                        misses: 0,
+                    },
+                }
+            };
+            
+            // First Of All Try to find From the Cache Else Find From the DB
+            
+            let queryResult;
+            const { isValueFound, value } = await getFromCache(`contests:v1:_id:${contest_id}`);
+
+            // Search in the Cache If Available then Send via here
+            if (isValueFound) {
+                queryResult = value;
+
+                // This will tell in Observability that finding Objects or data from DB for internal work was found from the cache 
+                _system.metadata.cache.hits++;
+            }
+            else {
+
+                // Get The Specific Contest's Details
+                const contest = await Contest.findById(contest_id).lean();
+
+                
+                queryResult = contest;
+                // This will tell in Observability that finding Objects or data from DB for internal work was found from the DB 
+                _system.metadata.cache.misses++;
+            }
+            
+            // If Contest Found and Has Been Started then We don't need to register user for this Contest
+            if(queryResult && queryResult.start_time <= start_time.toISOString()) {
+                queryResult = undefined;
+            }
+            
+            // Although The Registered User for Contest will always Ensure for the Existance of the Contest But good to have check for unavailability of The Contest and Send Response if Some Misunnderstanding has been developed
+            if (!queryResult) {
+                metadata.success = false;
+                metadata.message = "The Contest doesn't Exists Or Started....";
+                metadata.updatedAt = (new Date()).toISOString();
+                await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+                return;
+            }
+
+
+            // Set The Successful Result to Cache Not Using Await as we don't want to be Waiting while It Cache Up Things for us we have sent please cache it if it does then ok or else we will try from DB until it set things right up in the cache
+            setToCache(`contests:v1:_id:${queryResult._id}`, queryResult, 7200); // In Seconds thus it becomes 7200/60 = 120 Minutes = 2 Hours
+            setToCache(`contests:v1:slug:${queryResult.slug}`, queryResult, 7200); // In Seconds thus it becomes 7200/60 = 120 Minutes = 2 Hours
+
 
 
             const partition = getPartition();
@@ -480,20 +545,54 @@ const startContest = async (data, metadata) => {
             if (!existingParticipant) {
                 metadata.success = false;
                 metadata.message = "Not Registered for the Contest thus Sorry for this Contest You are not allowed to participate....";
+                metadata.updatedAt = (new Date()).toISOString();
                 await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
                 return;
             }
 
+
+            
+
+            // Put the Contest's Details (stored in "queryResult" at that point) into the "internal" object's field so that other Microservices running can perform their tasks
+
+            _system.data = {
+                _id: queryResult._id, // Required to Trace Back Contest's Details again If required while Observability and more
+                name: queryResult.name, // Required to Identify Easily Via Name and more
+                created_by: queryResult.created_by, // Required to Contact the Concerned Person If required while Observability and more
+                support_team: queryResult.support_team, // Required to Contact the Concerned Team If required while Observability and more
+                problems: queryResult.problems, // Required to Get Problems If required while Observability and more
+                start_time: queryResult.start_time, // Analytics Part May need it and more
+                end_time: queryResult.end_time, // Analytics Part May need it and more
+                duration: queryResult.duration, // Analytics Part May need it and more
+                support_end_time: queryResult.support_end_time, // Analytics Part May need it and more
+            };
+            _system.metadata.success = true;
+            _system.metadata.message = "Details of the Started Contest By Participant....";
+            _system.metadata.source = CURR_SERVICE_NAME;
+            _system.metadata.updatedAt = (new Date()).toISOString();
+
+
             if (existingParticipant.start_time) {
-                data = { ...data, result: existingParticipant };
-                metadata.success = false;
+                data = { ...data, result: existingParticipant, _system: _system };
+                metadata.success = true;
                 metadata.message = "Already Started The Contest....";
+                metadata.updatedAt = (new Date()).toISOString();
                 await sendEvent("contests.startContest.complete", partition, data, metadata);
                 return;
             }
 
+            // Set Total Duration Allowed from the Contest Duration So that It can be compared later when the User Starts the Contest and Thus User's Contest is Auto Ended and if The User tries to make Submissions then they will be discarded by checking the "end_time" field which will be set post "total_duration" from "start_time" within the Range Of Contest's Running Window
+
+            // Since The User Started at "start_time.getTime()" thus User Should get the Minimum of(Contest's Duration, (Contest's End Time - start_time.getTime())) as the Contest's Running Window is "Contest's Start Time to End Time" thus User Should not get the Time Past the End Time of the Contest
+            const contestDuration = queryResult.duration; // Contest's Data is Stored in "queryResult" at this point of time
+            const timeToEndTimeOfContest = (new Date(queryResult.end_time)).getTime() - start_time.getTime();
+
+            // The Total Time Should be Allowed to the Participant will be Minimum of (contestDuration, timeToEndTimeOfContest)
+            existingParticipant.total_duration = contestDuration < timeToEndTimeOfContest ? contestDuration : timeToEndTimeOfContest;
+
+
             // Update the End Time So that It can Be compared when the Submission is Made & If The Submission Exceeds the "end_time" then Submission will not be Processed
-            const liberty_of_time = 300000; // 5 Minutes Liberty is given to the Participants to Balance the Trade Off of the Processing Of The Events
+            const liberty_of_time = 900000; // 15 Minutes Liberty is given to the Participants to Balance the Trade Off of the Processing Of The Events
             const end_time = new Date(start_time.getTime() + existingParticipant.total_duration + liberty_of_time);
 
             // Update And Save Changes
@@ -501,17 +600,16 @@ const startContest = async (data, metadata) => {
             existingParticipant.end_time = end_time;
 
             await existingParticipant.save();
-
-            metadata.source = CURR_SERVICE_NAME;
-            metadata.updatedAt = (new Date()).toISOString();
-
-
-
+            
+            
+            
+            
             // Process the data and prepare the Response
-            data = { ...data, result: existingParticipant };
-
+            data = { ...data, result: existingParticipant, _system: _system };
+            
             metadata.success = true;
             metadata.message = "Started the Contest Successfully....";
+            metadata.updatedAt = (new Date()).toISOString();
             await sendEvent("contests.startContest.complete", partition, data, metadata);
 
             return;
@@ -525,6 +623,7 @@ const startContest = async (data, metadata) => {
         console.log("Something went wrong while handling in CONTEST SERVICE while Starting the Contest....");
         metadata.success = false;
         metadata.message = "Something Went Wrong. Please Provide All Details and/or Try Logging in again....";
+        metadata.updatedAt = (new Date()).toISOString();
         await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
         return;
     }
