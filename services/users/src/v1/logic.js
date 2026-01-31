@@ -482,6 +482,124 @@ const deleteSpecificUser = async (data, metadata) => {
 };
 
 
+
+
+
+
+const _systemSubmissionMadeThusUpdateTriedProblemsForUser = async (data, metadata) => {
+
+    try {
+
+
+        // const data = {
+        //     ...(Some Data Recieved From The Client Side or Initial Request to the API),
+        //     result: <result>, // Some Data Required To Send to Client Side or to source who does the Initial Request to the API
+        //     _system: {
+        //         data: {
+        //             problem_id: submission.problem_id, // The Problem Id which is Related to the Submission
+        //             created_by: submission.created_by,
+        //         },
+        //         metadata: {
+        //             source: "submission-service",
+        //             createdAt: "<Date in ISO String Format>", // Time when this System's internal Data Processing Request was created
+        //             cache: {
+        //                  hits: <hits>,
+        //                  misses: <misses>,
+        //             },
+        //             updatedAt: "<Date in ISO String Format>", // Every other function will update this after its processing so that it can be tracked how much time that function took to execute
+        //         }
+        //     },
+        // };
+
+
+
+
+        // const metadata = {
+        //     // Not To Be Changed Fields
+
+        //     clientId: "<clientId>", // This is Websocket Id Which will be used for sending back the data to the client
+        //     requestId: "<requestId>", // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
+        //     actor: {
+        //         userId: "<userId>", // This will be used to fetch details of the user from the DB if Required
+        //         role: "<role>", // Role of user will be only one of these: ADMIN , CONTEST_SCHEDULER , SUPPORT , USER , PUBLIC
+        //         token: "<userToken>", // This is JWT Token of the User by which we will validate the aunthenticity of User and check if he or she is allowed to have the desired operation performed
+        //     },
+        //     operation: "<Any Operation Name Which is To be searched onto the Permission's Table>", // This will tell about what initial request was and processing will be done as per this 
+        //     createdAt: "<Date in ISO String Format>", // Time when this request was created
+
+        //     // To be Changed Fields
+
+        //     source: "This is The Last Service name by which this event is Generated",
+        //     updatedAt: "<Date in ISO String Format>", // Every other function will update this after its processing so that it can be tracked how much time that function took to execute
+        // };
+
+
+
+        // Since we have got the Update that User Has made atleast one successful submission thus it is neccessary to put it into the Tried Problems in the User's Data and No need to push Update of that thing to the User unless the User desired to see that Thing like the User can choose to see the Problems Tried and then can fetch the Submission made to those Problems by the User itself unless update that thing in the Background Silently
+        if (data._system.metadata.source === "submission-service") {
+
+            data._system.metadata.source = CURR_SERVICE_NAME;
+
+            const {
+                problem_id,
+                created_by, // This will be the Id By which we Will be Tracking the User 
+            } = data._system.data;
+
+            const filter = {
+                _id: created_by,
+            };
+
+
+
+            // Since we have the "users.control.update" already we might think to update from there if we extend that function beyond just basic details but keeping things here for now for simplicity later can be extended
+            const user = await User.findOne(filter);
+
+            if (!user) {
+                console.log("Sorry! This User with _id: ", created_by, " doesn't Exists....");
+
+                data._system.metadata.success = false;
+                data._system.metadata.message = `Sorry! This User with _id: ${created_by} doesn't Exists....`;
+                data._system.metadata.updatedAt = (new Date()).toISOString();
+
+                const topic = "users._system.update.corrupt";
+                const partition = await getPartition();
+                await sendEvent(topic, partition, data, metadata);
+                return;
+            }
+
+            user.tried_problems = [...user.tried_problems, problem_id];
+            await user.save();
+
+            data._system.metadata.success = true;
+            data._system.metadata.message = `This User with _id: ${created_by} updated Successfully....`;
+            data._system.metadata.updatedAt = (new Date()).toISOString();
+
+            const topic = "users._system.update.complete";
+            const partition = await getPartition();
+            await sendEvent(topic, partition, data, metadata);
+            return;
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        console.log("Something went wrong while handling in USER SERVICE while Updating the User's Details....");
+        data._system.metadata.source = CURR_SERVICE_NAME;
+        data._system.metadata.success = false;
+        data._system.metadata.message = "Something went Wrong while Updating the User's Details....";
+        data._system.metadata.updatedAt = (new Date()).toISOString();
+        const topic = "users._system.update.corrupt";
+        const partition = await getPartition();
+        await sendEvent(topic, partition, data, metadata);
+        return;
+
+    }
+
+
+
+};
+
+
 const handleUnknownEvent = async (data, metadata) => {
     await publishToRedisPubSub("unknown", JSON.stringify({ data: data, metadata: metadata }));
 };
@@ -495,26 +613,38 @@ const consumeEvents = async () => {
 
         // List of All Topics to Consume to run this Service
         const listOfTopicsToConsume = [
+            // Normal User Usage Events
             "users.create",
             "users.getUser",
+
+            // Control Panel User Usage Events
             "users.control.search",
             "users.control.getUser",
             "users.control.create",
             "users.control.update",
             "users.control.delete",
+
+            // Other Services' Event Update Events
+            "submissions.practice.update.complete",
         ];
 
 
 
         // List of Functions that will be used for processing the events
         const handlingFunctions = {
+            // Normal User Usage Events
             "users.create": createUser,
             "users.getUser": getSpecificUserDetails,
+
+            // Control Panel User Usage Events
             "users.control.search": searchUsers,
             "users.control.getUser": getSpecificUserDetails,
             "users.control.create": createUser,
             "users.control.update": updateUserDetails,
             "users.control.delete": deleteSpecificUser,
+
+            // Other Services' Event Update Events
+            "submissions.practice.update.complete": _systemSubmissionMadeThusUpdateTriedProblemsForUser,
         };
 
         const consumer = kafka.consumer({ groupId: CURR_SERVICE_NAME });
