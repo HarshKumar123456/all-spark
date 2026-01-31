@@ -45,7 +45,11 @@ const initializeTopics = async () => {
             "problems.control.delete",
             
             // Other Services' Event Update Events
-            "contests.startContest.complete",
+            "problems.practiceSubmission.getTestCases.complete",
+            "problems.contestSubmission.getTestCases.complete",
+
+            "problems.practiceSubmission.getTestCases.corrupt",
+            "problems.contestSubmission.getTestCases.corrupt",
         ];
 
         const admin = kafka.admin();

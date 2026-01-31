@@ -47,7 +47,7 @@ const problemSchema = mongoose.Schema(
                             type: [
                                 {
                                     type: {
-                                        _id: {
+                                        id: {
                                             type: String,
                                         },
                                         stdin: {
@@ -73,7 +73,7 @@ const problemSchema = mongoose.Schema(
                             type: [
                                 {
                                     type: {
-                                        _id: {
+                                        id: {
                                             type: String,
                                         },
                                         stdin: {

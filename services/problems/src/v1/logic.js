@@ -3,7 +3,7 @@ import { kafka } from "../../config/v1/kafka.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
 import { getAllProblems, getSpecificProblemDetails, searchProblems } from "./handlers/normal.js";
 import { controlCreateProblem, controlDeleteProblem, controlGetSpecificProblemDetails, controlSearchProblems, controlUpdateProblem } from "./handlers/control.js";
-import { _systemGetProblemsOfStartedContest } from "./handlers/_system.js";
+import { _systemGetProblemsOfStartedContest, _systemGetTestCasesOfContestProblem, _systemGetTestCasesOfPracticeProblem } from "./handlers/_system.js";
 
 
 const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
@@ -40,6 +40,8 @@ const consumeEvents = async () => {
             
             // Other Services' Event Update Events
             "contests.startContest.complete",
+            "submissions.practice.create.complete",
+            "submissions.contest.create.complete",
         ];
 
 
@@ -60,6 +62,9 @@ const consumeEvents = async () => {
 
             // Other Services' Event Update Events
             "contests.startContest.complete": _systemGetProblemsOfStartedContest,
+            
+            "submissions.practice.create.complete": _systemGetTestCasesOfPracticeProblem,
+            "submissions.contest.create.complete": _systemGetTestCasesOfContestProblem,
         };
 
         const consumer = kafka.consumer({ groupId: CURR_SERVICE_NAME });

@@ -33,19 +33,29 @@ const initializeTopics = async () => {
         // List of Topics Should be present in the Kafka Queue to make sure the API Works Correctly
         const listOfTopicsNeeded = [
             // Normal User Usage Events
-            "users.create",
-            "users.getUser",
-
+            "submissions.practice.create", // This Indicates That This is Practice Problem's Submission
+            "submissions.contest.create", // This Indicates That This is Contest Problem's Submission
+            "submissions.getSubmission", // This Indicates Get the Details of the Specific Submission 
+            "submissions.getAllSubmissionsForProblem", // This Indicates Get All the Submissions Made by the User For Specific Problem
+            
             // Control Panel User Usage Events
-            "users.control.search",
-            "users.control.getUser",
-            "users.control.create",
-            "users.control.update",
-            "users.control.delete",
-
+            
+            
             // Other Services' Event Update Events
-            "users._system.update.complete",
-            "users._system.update.corrupt",
+            "submissions.practice.create.complete",
+            "submissions.contest.create.complete",
+
+            "submissions.practice.update.complete",
+            "submissions.contest.update.complete",
+            
+            "submissions.practice.update.corrupt",
+            "submissions.contest.update.corrupt",
+
+            "submissions.practice.delete.complete",
+            "submissions.contest.delete.complete",
+            
+            "submissions.practice.delete.corrupt",
+            "submissions.contest.delete.corrupt",
         ];
 
         const admin = kafka.admin();

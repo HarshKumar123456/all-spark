@@ -516,15 +516,11 @@ const startContest = async (data, metadata) => {
                 _system.metadata.cache.misses++;
             }
             
-            // If Contest Found and Has Been Started then We don't need to register user for this Contest
-            if(queryResult && queryResult.start_time <= start_time.toISOString()) {
-                queryResult = undefined;
-            }
             
-            // Although The Registered User for Contest will always Ensure for the Existance of the Contest But good to have check for unavailability of The Contest and Send Response if Some Misunnderstanding has been developed
+            // Although The Registered User for Contest will always Ensure for the Existance of the Contest But good to have check for unavailability of The Contest and Send Response if Some Misunderstanding has been developed
             if (!queryResult) {
                 metadata.success = false;
-                metadata.message = "The Contest doesn't Exists Or Started....";
+                metadata.message = "The Contest doesn't Exists....";
                 metadata.updatedAt = (new Date()).toISOString();
                 await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
                 return;
@@ -539,12 +535,25 @@ const startContest = async (data, metadata) => {
 
             const partition = getPartition();
 
-            // Before Starting Object check if User Already Started the Contest
+            // Before Starting Object check if User Already Registered for the Contest or not
             let existingParticipant = await Participant.findOne(filter);
 
             if (!existingParticipant) {
                 metadata.success = false;
                 metadata.message = "Not Registered for the Contest thus Sorry for this Contest You are not allowed to participate....";
+                metadata.updatedAt = (new Date()).toISOString();
+                await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+                return;
+            }
+
+
+            // Check if we have time to start the Contest from Contest's Allowed Running Window
+            // Since Contest's Details Are stored in the "queryResult" as of now
+            // Start Time is Inside Running Window of the Contest or not Check
+            if(!(queryResult.start_time <= start_time.toISOString() &&  start_time.toISOString() <= queryResult.end_time)) {
+                // console.log("\n\nContest Running Timings",  queryResult.start_time, " <= ", start_time.toISOString() , " <= ", queryResult.end_time, "\n\n");
+                metadata.success = false;
+                metadata.message = "Sorry! Contest is Over Now....";
                 metadata.updatedAt = (new Date()).toISOString();
                 await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
                 return;

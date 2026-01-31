@@ -1,14 +1,10 @@
 import "dotenv/config";
 import { kafka } from "../../config/v1/kafka.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
-import { controlCreateContest, controlDeleteContest, controlGetSpecificContestDetails, controlSearchContests, controlUpdateContest } from "./handlers/control.js";
-import { getAllContests, getSpecificContestDetails, registerForContest, searchContests, startContest } from "./handlers/normal.js";
-import { _systemSubmissionUpdatedThusUpdateParticipantDetails } from "./handlers/_system.js";
+import { _systemDeleteContestProblemSubmissionsFromTheExecutionEngine, _systemDeletePracticeProblemSubmissionsFromTheExecutionEngine, _systemExecuteSubmissionOfContestProblem, _systemExecuteSubmissionOfPracticeProblem, _systemGetUpdatesOfTheSubmissionOfContestProblem, _systemGetUpdatesOfTheSubmissionOfPracticeProblem } from "./handlers/_system.js";
 
 
-
-const DEFAULT_PARTITIONS_OF_KAFKA_TOPICS = process.env.DEFAULT_PARTITIONS_OF_KAFKA_TOPICS || 4;
-const CURR_SERVICE_NAME = "contest-service";
+const CURR_SERVICE_NAME = "judge-service";
 
 
 // PLEASE NOTE: CACHING is YET TO BE IMPLEMENTED
@@ -28,44 +24,52 @@ const consumeEvents = async () => {
         // List of All Topics to Consume to run this Service
         const listOfTopicsToConsume = [
             // Normal User Usage Events
-            "contests.search",
-            "contests.getAllContests",
-            "contests.getContest",
-            "contests.register",
-            "contests.startContest",
-
+            
+            
             // Control Panel User Usage Events
-            "contests.control.search",
-            "contests.control.getContest",
-            "contests.control.create",
-            "contests.control.update",
-            "contests.control.delete",
-
+            
+            
             // Other Services' Event Update Events
-            "submissions.contest.update.complete",
+            "judges.execution.practice.getUpdates",
+            "judges.execution.contest.getUpdates",
+
+            "judges.execution.practice.complete",
+            "judges.execution.contest.complete",
+
+            "judges.execution.practice.corrupt",
+            "judges.execution.contest.corrupt",
+
+            "problems.practiceSubmission.getTestCases.complete",
+            "problems.contestSubmission.getTestCases.complete",
         ];
+
 
 
 
         // List of Functions that will be used for processing the events
         const handlingFunctions = {
             // Normal User Usage Events
-            "contests.search": searchContests,
-            "contests.getAllContests": getAllContests,
-            "contests.getContest": getSpecificContestDetails,
-            "contests.register": registerForContest,
-            "contests.startContest": startContest,
-
+            
+            
             // Control Panel User Usage Events
-            "contests.control.search": controlSearchContests,
-            "contests.control.getContest": controlGetSpecificContestDetails,
-            "contests.control.create": controlCreateContest,
-            "contests.control.update": controlUpdateContest,
-            "contests.control.delete": controlDeleteContest,
-
+            
+            
             // Other Services' Event Update Events
-            "submissions.contest.update.complete": _systemSubmissionUpdatedThusUpdateParticipantDetails,
+            "judges.execution.practice.getUpdates": _systemGetUpdatesOfTheSubmissionOfPracticeProblem,
+            "judges.execution.contest.getUpdates": _systemGetUpdatesOfTheSubmissionOfContestProblem,
+
+            // "judges.execution.practice.complete": _systemDeletePracticeProblemSubmissionsFromTheExecutionEngine,
+            // "judges.execution.contest.complete": _systemDeleteContestProblemSubmissionsFromTheExecutionEngine,
+
+            // "judges.execution.practice.corrupt": _systemDeletePracticeProblemSubmissionsFromTheExecutionEngine,
+            // "judges.execution.contest.corrupt": _systemDeleteContestProblemSubmissionsFromTheExecutionEngine,
+
+            "problems.practiceSubmission.getTestCases.complete": _systemExecuteSubmissionOfPracticeProblem,
+            "problems.contestSubmission.getTestCases.complete": _systemExecuteSubmissionOfContestProblem,
         };
+
+
+
 
         const consumer = kafka.consumer({ groupId: CURR_SERVICE_NAME });
         await consumer.connect();
