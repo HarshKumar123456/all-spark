@@ -1,1 +1,226 @@
 @import "tailwindcss";
+
+/* Google Fonts - Starts Here */
+
+
+/* Google Fonts Classes - Starts Here */
+
+
+
+
+.poppins-thin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.poppins-extralight {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.poppins-light {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-medium {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-semibold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.poppins-extrabold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.poppins-black {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.poppins-thin-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.poppins-extralight-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.poppins-light-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.poppins-regular-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.poppins-medium-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.poppins-semibold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.poppins-bold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.poppins-extrabold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.poppins-black-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Google Fonts Classes - Ends Here */
+
+
+
+
+/* Google Fonts - Ends Here */
+
+
+
+
+
+
+
+/* Utility Classes - Starts Here */
+
+
+/* By Default All Will Have these Styles - Starts Here */
+* {
+  font-family: "Poppins", sans-serif;
+}
+
+/* By Default All Will Have these Styles - Ends Here */
+
+
+
+
+
+/* Text Colors - Starts Here */
+.primary-color-text {
+  color: #135BEB;
+}
+
+.primary-gradient-text {
+  background: linear-gradient(130.77deg, #135BEB 42.53%, #344FF0 42.53%, #9D29FF 93.56%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.secondary-color-text {
+  color: #9D29FF;
+}
+
+.tertiary-color-text {
+  color: #F5CC37;
+}
+
+.quarternary-color-text {
+  color: #47FF4E;
+}
+
+.black-100-text {
+  color: rgba(10, 23, 50);
+}
+
+.black-80-text {
+  color: rgba(10, 23, 50, 0.8);
+}
+
+.black-60-text {
+  color: rgba(10, 23, 50, 0.6);
+}
+
+.black-40-text {
+  color: rgba(10, 23, 50, 0.4);
+}
+
+.black-20-text {
+  color: rgba(10, 23, 50, 0.2);
+}
+
+.black-10-text {
+  color: rgba(10, 23, 50, 0.1);
+}
+
+.black-5-text {
+  color: rgba(10, 23, 50, 0.05);
+}
+
+/* Text Colors - Starts Here */
+
+
+
+
+/* Shadows - Starts Here */
+.custom-smooth-drop-shadow {
+  box-shadow: 0px 100px 80px rgba(0, 0, 0, 0.07), 0px 41.7776px 33.4221px rgba(0, 0, 0, 0.0503198), 0px 22.3363px 17.869px rgba(0, 0, 0, 0.0417275), 0px 12.5216px 10.0172px rgba(0, 0, 0, 0.035), 0px 6.6501px 5.32008px rgba(0, 0, 0, 0.0282725), 0px 2.76726px 2.21381px rgba(0, 0, 0, 0.0196802);
+}
+
+/* Shadows - Ends Here */
+
+
+
+
+
+
+
+
+/* Gradients Background - Starts Here */
+.primary-gradient-bg {
+  background: linear-gradient(130.77deg, #135BEB 42.53%, #344FF0 42.53%, #9D29FF 93.56%);
+}
+
+/* Gradients Background - Starts Here */
+
+
+
+
+/* Utility Classes - Ends Here */
