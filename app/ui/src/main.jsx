@@ -16,6 +16,9 @@ import { AuthProvider } from "./contexts/AuthContext.jsx";
 import LogOut from "./pages/auth/logout/LogOut.jsx";
 import UserDashboard from "./pages/users/UserDashboard.jsx";
 
+// For Toast Notification & Sorry if You were Expecting some other package here for this use case :)
+import { Toaster } from 'sonner';
+
 
 ReactDOM.createRoot(root).render(
   <WebSocketProvider>
@@ -24,6 +27,11 @@ ReactDOM.createRoot(root).render(
 
 
       <BrowserRouter>
+        {/* Toaster Component Required to Place Here to Show Toast Notifications Across the Frontend */}
+        {/* Toaster Compoent - Starts Here */}
+        <Toaster />
+        {/* Toaster Compoent - Ends Here */}
+
         <Routes>
           <Route index element={<App />} />
 
@@ -35,7 +43,7 @@ ReactDOM.createRoot(root).render(
             <Route index element={<ProblemsList />} />
             <Route path="all" element={<ProblemsList />} />
             <Route path=":slug" element={<ProblemEditor />} />
-            
+
           </Route>
 
           <Route path="users">

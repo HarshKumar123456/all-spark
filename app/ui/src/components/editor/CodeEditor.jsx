@@ -5,7 +5,26 @@ const CodeEditor = ({ onLanguageChange }) => {
 
     const [codeLanguage, setCodeLanguage] = useState("cpp");
 
-    const [codeString, setCodeString] = useState(`#include <iostream>\nusing namespace std;\n\nint main()  {\n\n\tcout << "AllSpark " << endl;\n\tcout << "Open Source, Self Hostable Code Execution Platform" << endl;\n\n\treturn 0;\n\n}`)
+    const boilerPlateCodeForLanguages = [
+        {
+            language: "cpp",
+            boilerPlateCode: "// Please Note \n\n// You Have to Write Full Code Here \n// Including the Input Taking From The Terminal or Console \n// You May Choose To Remove These Lines or Keep Them \n\n// Start Coding :)",
+        },
+        {
+            language: "java",
+            boilerPlateCode: "// Please Note \n\n// You Have to Write Full Code Here \n// Including the Input Taking From The Terminal or Console \n// You May Choose To Remove These Lines or Keep Them \n\n// Start Coding :)",
+        },
+        {
+            language: "javascript",
+            boilerPlateCode: "// Please Note \n\n// You Have to Write Full Code Here \n// Including the Input Taking From The Terminal or Console \n// You May Choose To Remove These Lines or Keep Them \n\n// Start Coding :)",
+        },
+        {
+            language: "python",
+            boilerPlateCode: "# Please Note \n\n# You Have to Write Full Code Here \n# Including the Input Taking From The Terminal or Console \n# You May Choose To Remove These Lines or Keep Them \n\n# Start Coding :)",
+        }
+    ];
+
+    const [codeString, setCodeString] = useState(boilerPlateCodeForLanguages.find((element) => element.language === codeLanguage).boilerPlateCode)
 
 
     const handleEditorChange = (value, event) => {
@@ -20,6 +39,11 @@ const CodeEditor = ({ onLanguageChange }) => {
         console.log("Hi, Language Change is Done....", e.target.value);
 
         setCodeLanguage(languageValue);
+
+        setCodeString(() => {
+            const newCodeString = boilerPlateCodeForLanguages.find((element) => element.language === languageValue).boilerPlateCode;
+            return newCodeString;
+        })
     }
 
 
@@ -45,8 +69,9 @@ const CodeEditor = ({ onLanguageChange }) => {
         </div>
         <Editor
             height="70vh"
+            className="border border-[#0a173233] border-2 rounded-xl py-4"
             language={codeLanguage}
-            defaultValue={codeString}
+            value={codeString}
             onChange={handleEditorChange}
         />
 

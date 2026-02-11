@@ -170,7 +170,7 @@ const getSpecificProblemDetailsController = async (req, res) => {
 
     try {
 
-        const { _id } = req.body;
+        const { _id } = req.body || {}; // To Make req.body Optional to Send while APi Call 
         const slug = req.params.slug;
 
         if (!(_id || slug)) {
