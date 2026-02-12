@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema(
         tried_problems: {
             type: [
                 {
-                    _id: {
+                    problem_id: {
                         type: String,
                     },
                     status: {

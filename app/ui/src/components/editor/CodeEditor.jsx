@@ -1,9 +1,17 @@
 import { useRef, useState, useEffect } from 'react';
 import Editor from "@monaco-editor/react";
 
-const CodeEditor = ({ onLanguageChange }) => {
+const CodeEditor = ({ onCodeLanguageChange, onCodeStringChange }) => {
 
     const [codeLanguage, setCodeLanguage] = useState("cpp");
+
+    const languageStringToIdMappingObject = {
+        "cpp": 52, // "C++ (GCC 7.4.0)"
+        "java": 62, // "Java (OpenJDK 13.0.1)"
+        "javascript": 63, // "JavaScript (Node.js 12.14.0)"
+        "python": 71, // "Python (3.8.1)"
+        // We Can Add More Language Options Afterwards
+    };
 
     const boilerPlateCodeForLanguages = [
         {
@@ -21,7 +29,8 @@ const CodeEditor = ({ onLanguageChange }) => {
         {
             language: "python",
             boilerPlateCode: "# Please Note \n\n# You Have to Write Full Code Here \n# Including the Input Taking From The Terminal or Console \n# You May Choose To Remove These Lines or Keep Them \n\n# Start Coding :)",
-        }
+        },
+        // We Can Add More Language Options Afterwards
     ];
 
     const [codeString, setCodeString] = useState(boilerPlateCodeForLanguages.find((element) => element.language === codeLanguage).boilerPlateCode)
@@ -31,7 +40,10 @@ const CodeEditor = ({ onLanguageChange }) => {
         console.log("This is Value: ", value);
         console.log("This is Event: ", event);
 
-        setCodeString(codeString);
+        setCodeString(value);
+
+        // Update Parent That CodeString Has Been Changed 
+        onCodeStringChange(value);
     }
 
     const handleLanguageSelectionChange = (e) => {
@@ -43,8 +55,19 @@ const CodeEditor = ({ onLanguageChange }) => {
         setCodeString(() => {
             const newCodeString = boilerPlateCodeForLanguages.find((element) => element.language === languageValue).boilerPlateCode;
             return newCodeString;
-        })
+        });
+
+
+        // Update Parent That Language Has Been Changed 
+        onCodeLanguageChange(languageStringToIdMappingObject[languageValue]);
     }
+    
+    
+    // As soon as the CodeEditor Component Mounts Update Parent About the Default Code Language and Code String
+    useEffect(() => {
+        onCodeLanguageChange(languageStringToIdMappingObject[codeLanguage]);
+        onCodeStringChange(codeString);
+    }, []);
 
 
 

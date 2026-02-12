@@ -543,16 +543,19 @@ const _systemSubmissionMadeThusUpdateTriedProblemsForUser = async (data, metadat
             const {
                 problem_id,
                 created_by, // This will be the Id By which we Will be Tracking the User 
+                _id, // This Will be Submission Id Which is Being Considered to Update the Tried Problem Status in User's Data Object
+                is_for_public_test_cases, // This Will Tell If it is Finally Solved as Solving for Public Test Cases or Not Will not update the Problem Solving Status From "attempted" to "solved" it will be Updated When User have solved the Problem for the Private Test Cases
+                test_cases, // These Will be the Test Cases Which the Current Submission Under Consideration have into it
             } = data._system.data;
 
             const filter = {
-                _id: created_by,
+                _id: created_by, // This is User's Id By Which The User will be Find
             };
 
 
 
             // Since we have the "users.control.update" already we might think to update from there if we extend that function beyond just basic details but keeping things here for now for simplicity later can be extended
-            const user = await User.findOne(filter);
+            const user = await User.findOne(filter).lean(); // lean() is Used Here to Get POJO so that operations can be performed Easily
 
             if (!user) {
                 console.log("Sorry! This User with _id: ", created_by, " doesn't Exists....");
@@ -567,8 +570,88 @@ const _systemSubmissionMadeThusUpdateTriedProblemsForUser = async (data, metadat
                 return;
             }
 
-            user.tried_problems = [...user.tried_problems, problem_id];
-            await user.save();
+            let isUpdatedProblemSubmissions = false;
+            let isCurrSubmissionAccepted = false; // bool 
+
+            // If the Submission Was for Public Test Cases Just Make the Problem Status as "attempted" and if it was for Private Test Cases then Check If It met to pass all the Test Cases and if Yes then Update the Problem Status as "solved"
+            if (is_for_public_test_cases === false) {
+
+
+                let passedTestCases = 0;
+                const submissionTestCases = test_cases;
+
+                // console.log("For Submission id: ", _id, "length of submissionTestCases is: ", submissionTestCases.length, "\n\n");
+
+                for (let index = 0; index < submissionTestCases.length; index++) {
+                    const testCase = submissionTestCases[index];
+                    // console.log("Processing Test Case: ", index);
+                    console.log(testCase);
+                    if (testCase.status.id === 3) {
+                        // console.log("This Test Case Is Accepted Thus Incrementing: ", passedTestCases);
+                        passedTestCases++;
+                    }
+                    else {
+                        isCurrSubmissionAccepted = false;
+                        console.log("Breaking Here for Test Case: ", index);
+                        break;
+                    }
+                }
+
+                // Check If Passed All Test Cases
+                if (passedTestCases === submissionTestCases.length) {
+                    isCurrSubmissionAccepted = true;
+                }
+
+
+            }
+
+
+            // First of All Try to Update if It Exists Already in Attempted Problems and If Yes then Update its Status from the Current Submission
+            const existingTriedProblems = user.tried_problems;
+            user.tried_problems = (existingTriedProblems).map((triedProblem) => {
+                const newTriedProblemDetails = { ...triedProblem };
+                // console.log("Inside Map of Tried Problems & Conparing the Problem_id ", newTriedProblemDetails.problem_id, "  ", problem_id);
+                // console.log(newTriedProblemDetails);
+                if (newTriedProblemDetails.problem_id === problem_id) {
+                    console.log("\n\nIt Already Had Submission related to this Problem....");
+                    isUpdatedProblemSubmissions = true;
+                    // Append Current Submission Under Consideration into the Submissions Made By The User for the Current Problem
+                    newTriedProblemDetails.submissions = [...(newTriedProblemDetails.submissions), _id];
+
+                    // Update the Status of the Problem After The Current Submission
+                    if (newTriedProblemDetails.status !== "solved") {
+                        if (isCurrSubmissionAccepted === true) {
+                            newTriedProblemDetails.status = "solved";
+                        }
+                        else {
+                            newTriedProblemDetails.status = "attempted";
+                        }
+                    }
+                }
+                return newTriedProblemDetails;
+            });
+
+
+            // If This Is Problem's First Submission Made By The User then Make a New Entry in the "tried_problems" field of the User's Data's Object
+            if (isUpdatedProblemSubmissions === false) {
+                const newTriedProblemDetails = {
+                    problem_id: problem_id,
+                    status: (isCurrSubmissionAccepted === true ? "solved" : "attempted"),
+                    submissions: [_id], // Adding the Id of the Current Submission Under Consideration 
+                };
+
+                // Update the User's Data Object
+                user.tried_problems =
+                    [
+                        ...(user.tried_problems),
+                        newTriedProblemDetails,
+                    ];
+
+                isUpdatedProblemSubmissions = true;
+            };
+
+
+            await User.findOneAndUpdate(filter, user);
 
             data._system.metadata.success = true;
             data._system.metadata.message = `This User with _id: ${created_by} updated Successfully....`;

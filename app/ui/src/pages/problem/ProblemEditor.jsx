@@ -13,6 +13,28 @@ const ProblemEditor = () => {
         return new Promise((resolve) => setTimeout(resolve, milliSeconds));
     };
 
+    const sortByCreationTimeCompareFunction = (a, b) => {
+        if (b.createdAt > a.createdAt) {
+            return 1;
+        }
+        else if (a.createdAt > b.createdAt) {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+    };
+
+
+    const getLocalDateTimeStringFromISOString = (ISOString) => {
+
+        const ISOStringDate = new Date(ISOString);
+        let localDateTimeString = ISOStringDate.toDateString() + " " + ISOStringDate.toLocaleTimeString();
+
+        return localDateTimeString;
+
+    };
+
 
     const navigate = useNavigate();
 
@@ -31,7 +53,11 @@ const ProblemEditor = () => {
 
     const [problemDetails, setProblemDetails] = useState(null); // null or Object
 
-    const [showSubmissionsToThisProblem, setShowSubmissionsToThisProblem] = useState(false); // boolean
+    const [submissionDetails, setSubmissionDetails] = useState(null); // null or Object
+
+    const [submissionFilter, setSubmissionFilter] = useState("private"); // "all" or "public" or "private"
+
+    const [allSubmissionsToThisProblem, setAllSubmissionsToThisProblem] = useState(null); // null or Array
 
     const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api/v1";
 
@@ -60,8 +86,31 @@ const ProblemEditor = () => {
         })
     };
 
-    const handleClickOnRunButton = async () => {
+
+    const handleClickOnSubmissionsFilterButton = (e) => {
+        setSubmissionFilter(e.target.id);
+    };
+
+
+    const enableRunAndSubmitButtons = () => {
+        document.getElementById("run-button").disabled = false;
+        document.getElementById("submit-button").disabled = false;
+    };
+
+
+    const disableRunAndSubmitButtons = () => {
+        document.getElementById("run-button").disabled = true;
+        document.getElementById("submit-button").disabled = true;
+    };
+
+
+
+    const handleClickOnRunButton = async (e) => {
         console.log("Run Button Is Clicked....");
+        console.log(e.target);
+
+        // Disable Run & Submit Buttons Until Function Doesn't Exits
+        disableRunAndSubmitButtons();
 
         try {
             // If Token is Not Present Might be User Logged Out or Deleted Token Thus redirect to Login Page
@@ -76,14 +125,72 @@ const ProblemEditor = () => {
 
                 navigate("/login");
             }
-        } catch (error) {
+            // else if problemDetails or submissionDetails are not there then say Try Again after Some time
+            else if (!problemDetails || !submissionDetails) {
+                console.log("Either the problemDetails or submissionDetails is missing: ");
+                console.log(problemDetails);
+                console.log(submissionDetails);
+                toast.error("Loading! Please Try Again After Some Time....");
+            }
+            // else if User Is Logged in Then Run Code against Public Test cases Via API Call
+            else {
+                console.log("Bhai Run Button is Clicked & User Logged In: ");
+                console.log(submissionDetails);
+                console.log("Ready to Make API Call ");
 
+
+                const payload = {
+                    problem_id: problemDetails._id,
+                    language_id: submissionDetails.language_id,
+                    source_code: submissionDetails.source_code,
+                    is_for_public_test_cases: true,
+                };
+
+                console.log("Payload For the API Call: ");
+                console.log(payload);
+
+                const response = await axios.post(`${API_BASE}/submissions/practice/create`, payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "client-id": clientId,
+                        "authorization": token,
+                    }
+                })
+
+                // console.log("Response From the SUBMISSIONS' API Call: ");
+                // console.log(response);
+                toast.success(response.data.message);
+
+
+            }
+        } catch (error) {
+            console.log(error);
+            console.log("Something Went Wrong While Making the SUBMISSIONS' API Call....", error);
+            toast.error("Something went Wrong....");
         }
+
+        // When Public Test Cases Submission Request is Made Then Show the Public Submissions
+        setSubmissionFilter("public");
+        hideAllContent();
+        setVisiblePart((prev) => {
+            return {
+                ...prev,
+                "problemSubmissions": true,
+            }
+        });
+
+        // Add Delay of 7 Second and Then Enable Run And Submit Buttons for Limiting Users to Rapidly make Submissions and Getting Their Submission Status in the Meantime
+        await sleep(7000);
+        enableRunAndSubmitButtons();
     };
 
 
-    const handleClickOnSubmitButton = async () => {
+    const handleClickOnSubmitButton = async (e) => {
         console.log("Submit Button Is Clicked....");
+        console.log(e.target);
+
+        // Disable Run & Submit Buttons Until Function Doesn't Exits
+        disableRunAndSubmitButtons();
 
         try {
             // If Token is Not Present Might be User Logged Out or Deleted Token Thus redirect to Login Page
@@ -98,10 +205,93 @@ const ProblemEditor = () => {
 
                 navigate("/login");
             }
-        } catch (error) {
+            // else if problemDetails or submissionDetails are not there then say Try Again after Some time
+            else if (!problemDetails || !submissionDetails) {
+                console.log("Either the problemDetails or submissionDetails is missing: ");
+                console.log(problemDetails);
+                console.log(submissionDetails);
+                toast.error("Loading! Please Try Again After Some Time....");
+            }
+            // else if User Is Logged in Then Submit Code against Private Test cases Via API Call
+            else {
+                console.log("Bhai Submit Button is Clicked & User Logged In: ");
+                console.log(submissionDetails);
+                console.log("Ready to Make API Call ");
 
+
+                const payload = {
+                    problem_id: problemDetails._id,
+                    language_id: submissionDetails.language_id,
+                    source_code: submissionDetails.source_code,
+                    is_for_public_test_cases: false,
+                };
+
+                console.log("Payload For the API Call: ");
+                console.log(payload);
+
+                const response = await axios.post(`${API_BASE}/submissions/practice/create`, payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "client-id": clientId,
+                        "authorization": token,
+                    }
+                })
+
+                // console.log("Response From the SUBMISSIONS' API Call: ");
+                // console.log(response);
+                toast.success(response.data.message);
+
+
+            }
+        } catch (error) {
+            console.log(error);
+            console.log("Something Went Wrong While Making the SUBMISSIONS' API Call....", error);
+            toast.error("Something went Wrong....");
         }
+
+        // When Private Test Cases Submission Request is Made Then Show the Private Submissions
+        setSubmissionFilter("private");
+        hideAllContent();
+        setVisiblePart((prev) => {
+            return {
+                ...prev,
+                "problemSubmissions": true,
+            }
+        });
+
+        // Add Delay of 7 Second and Then Enable Run And Submit Buttons for Limiting Users to Rapidly make Submissions and Getting Their Submission Status in the Meantime
+        await sleep(7000);
+        enableRunAndSubmitButtons();
     };
+
+
+    const handleCodeLanguageChange = (language_id) => {
+        console.log("Inside Parent i.e. ProblemEditor Component in handleCodeLanguageChange(): ");
+        console.log(language_id);
+        setSubmissionDetails((prev) => {
+            return {
+                ...prev,
+                ["language_id"]: language_id,
+            };
+        });
+        console.log("Submission Details Now: ");
+        console.log(submissionDetails);
+    };
+
+
+    const handleCodeStringChange = (source_code) => {
+        console.log("Inside Parent i.e. ProblemEditor Component in handleCodeStringChange(): ");
+        console.log(source_code);
+        setSubmissionDetails((prev) => {
+            return {
+                ...prev,
+                ["source_code"]: source_code,
+            };
+        });
+        console.log("Submission Details Now: ");
+        console.log(submissionDetails);
+    };
+
 
 
 
@@ -123,7 +313,7 @@ const ProblemEditor = () => {
                     }
                 })
 
-                // console.log("Response From the AUTH API Call: ");
+                // console.log("Response From the PROBLEMS' API Call: ");
                 // console.log(response);
                 toast.success(response.data.message);
 
@@ -139,12 +329,42 @@ const ProblemEditor = () => {
             fetchProblemDetails();
         }
 
+
     }, [slug, isConnected, clientId]);
+
+    // Got Problem Details and Client Is Connected then Fetch All Submissions Made By This User To This Problem
+    useEffect(() => {
+        const fetchAllSubmissionsByUserToThisProblem = async () => {
+            try {
+                const response = await axios.get(`${API_BASE}/submissions/all/${problemDetails._id}`, {
+                    headers: {
+                        "client-id": clientId,
+                        "authorization": token,
+                    },
+                });
+
+                // console.log("Response From the PROBLEMS' API Call: ");
+                // console.log(response);
+                toast.success(response.data.message);
+
+
+            } catch (error) {
+                console.log(error);
+                console.log("Something Went Wrong While Making the PROBLEMS' API Call....", error);
+                toast.error("Something went Wrong....");
+            }
+        };
+
+        // Got Problem Details and Client Is Connected & Logged In then Fetch All Submissions Made By This User To This Problem
+        if (clientId && token && (problemDetails && problemDetails._id)) {
+            fetchAllSubmissionsByUserToThisProblem();
+        }
+    }, [clientId, token, problemDetails]);
 
 
 
     // Websocket Event Listening Logic - Starts Here
-    // Listener 1: Handle Valid Signup Response
+    // Listener 1: Handle Valid Get Specfic Problem's Details' Response
     useSocketListener(
         // Selector: "Is this message for me?"
         (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("problems.getProblem"),
@@ -153,7 +373,7 @@ const ProblemEditor = () => {
         async (msg) => {
             const { data, metadata } = msg;
 
-            // If Signup is Success then Save The Token For further Accesses 
+            // If Request Processing was Success then Save The Problem's Details For further Accesses 
             if (metadata?.success === true) {
                 // alert("Signed up Successfully....");
                 console.log(data);
@@ -164,7 +384,7 @@ const ProblemEditor = () => {
 
                 setProblemDetails(problemDetailsFromEventData);
 
-                // Show Toast Notification that Successfully Signed Up
+                // Show Toast Notification that Successfully Got Problem's Details
                 toast.success(metadata.message);
 
                 // Sleep for 1s to show Toast Notification
@@ -172,7 +392,7 @@ const ProblemEditor = () => {
 
 
             }
-            // Else Signup is not done then Tell User What May Went Wrong
+            // Else Request Processing is not done then Tell User What May Went Wrong
             else {
                 console.log(data);
                 console.log(metadata);
@@ -180,6 +400,241 @@ const ProblemEditor = () => {
                 toast.error(metadata.message);
                 await sleep(1000);
                 toast.error("Seems Like Problem Doesn't Exists Now....");
+                await sleep(1000);
+
+            }
+        }
+    );
+
+    // Listener 2: Handle Valid Get All Submissions Made By User Response 
+    useSocketListener(
+        // Selector: "Is this message for me?"
+        (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("submissions.getAllSubmissionsForProblem"),
+
+        // Handler: "What do I do with it?"
+        async (msg) => {
+            const { data, metadata } = msg;
+
+            // If Request Processing was Success then Save The Submissions' Details For further Accesses 
+            if (metadata?.success === true) {
+                // alert("Signed up Successfully....");
+                console.log(data);
+                console.log(metadata);
+
+                // Setting Submissions' Details From Event Data
+                const allSubmissionForThisProblemMadeByUserDetailsFromEventData = data.result;
+
+
+
+                setAllSubmissionsToThisProblem(() => {
+                    const newAllSubmissionsToThisProblem = allSubmissionForThisProblemMadeByUserDetailsFromEventData.map((submissionDetails) => {
+                        const newSubmissionDetails = { ...submissionDetails };
+
+                        if ((submissionDetails.is_cpu_executed) === true) {
+                            let passedTestCases = 0;
+                            const submissionTestCases = submissionDetails.test_cases;
+                            console.log("For Submission id: ", submissionDetails._id, "length of submissionTestCases is: ", submissionTestCases.length, "\n\n");
+                            for (let index = 0; index < submissionTestCases.length; index++) {
+                                const testCase = submissionTestCases[index];
+                                console.log("Processing Test Case: ", index);
+                                console.log(testCase);
+                                if (testCase.status.id === 3) {
+                                    console.log("This Test Case Is Accepted Thus Incrementing: ", passedTestCases);
+                                    passedTestCases++;
+                                }
+                                else {
+                                    newSubmissionDetails.status = testCase.status.description;
+                                    console.log("Breaking Here for Test Case: ", index);
+                                    break;
+                                }
+                            }
+
+                            // Check If Passed All Test Cases
+                            if (passedTestCases === submissionTestCases.length) {
+                                newSubmissionDetails.status = "Accepted";
+                            }
+                        }
+                        else {
+                            newSubmissionDetails.status = "Pending";
+                        }
+
+
+
+                        return newSubmissionDetails;
+                    });
+
+
+                    // Sort the Array By the Creation Time
+                    newAllSubmissionsToThisProblem.sort(sortByCreationTimeCompareFunction);
+
+                    console.log("Final Processed Submission's Array: ");
+                    console.log(newAllSubmissionsToThisProblem);
+
+                    return newAllSubmissionsToThisProblem;
+                });
+
+                // Show Toast Notification that Successfully Got Submissions
+                toast.success(metadata.message);
+
+                // Sleep for 1s to show Toast Notification
+                await sleep(1000);
+
+
+            }
+            // Else Request Processing is not done then Tell User What May Went Wrong
+            else {
+                console.log(data);
+                console.log(metadata);
+
+                toast.error(metadata.message);
+                await sleep(1000);
+                toast.error("Seems Like Something Wrong while getting your Submissions....");
+                await sleep(1000);
+
+            }
+        }
+    );
+
+
+    // Listener 3: Handle Valid Create Submission Response 
+    useSocketListener(
+        // Selector: "Is this message for me?"
+        // Please Note: When Submission will be Created Then "test_cases" will be empty Array and when it will have some length then It Means It is Executed Thus Update Status Accordingly
+        (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("submissions.practice.create") && (msg.data.result.test_cases)?.length === 0,
+
+        // Handler: "What do I do with it?"
+        async (msg) => {
+            const { data, metadata } = msg;
+
+            // If Request Processing was Success then Save The Submission's Details For further Accesses 
+            if (metadata?.success === true) {
+                console.log(data);
+                console.log(metadata);
+
+                // Setting Submission's Details From Event Data
+                const submissionForThisProblemMadeByUserDetailsFromEventData = data.result;
+
+
+                setAllSubmissionsToThisProblem((prev) => {
+                    const newAllSubmissionsToThisProblem = [
+                        {
+                            ...submissionForThisProblemMadeByUserDetailsFromEventData,
+                            status: "Pending",
+                        },
+                        ...prev,
+                    ];
+
+                    console.log("Final Processed Submission's Array: ");
+                    console.log(newAllSubmissionsToThisProblem);
+
+                    return newAllSubmissionsToThisProblem;
+                });
+
+                // Show Toast Notification that Successfully Got Submissions
+                toast.success(metadata.message);
+
+                // Sleep for 1s to show Toast Notification
+                await sleep(1000);
+
+
+            }
+            // Else Request Processing is not done then Tell User What May Went Wrong
+            else {
+                console.log(data);
+                console.log(metadata);
+
+                toast.error(metadata.message);
+                await sleep(1000);
+                toast.error("Seems Like Something Wrong while Creating your Submission....");
+                await sleep(1000);
+
+            }
+        }
+    );
+
+    // Listener 4: Handle Valid Got Update of Submission Response 
+    useSocketListener(
+        // Selector: "Is this message for me?"
+        // Please Note: When Submission will be Updated Then "test_cases" will not be empty Array and when it will have no length then It Means It is yet to Executed Thus Update Status Accordingly
+        (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("submissions.practice.create") && (msg.data.result.test_cases)?.length !== 0,
+
+        // Handler: "What do I do with it?"
+        async (msg) => {
+            const { data, metadata } = msg;
+
+            // If Request Processing was Success then Save The Submission's Details For further Accesses 
+            if (metadata?.success === true) {
+                console.log(data);
+                console.log(metadata);
+
+                // Setting Submission's Details From Event Data
+                const submissionForThisProblemMadeByUserDetailsFromEventData = data.result;
+
+
+                setAllSubmissionsToThisProblem((prev) => {
+
+                    const newAllSubmissionsToThisProblem = prev.map((submissionDetails) => {
+                        const newSubmissionDetails = { ...submissionDetails };
+                        // If The Updated Submission is Present then Update Status of It else Return the Same Submission
+                        if (newSubmissionDetails._id === submissionForThisProblemMadeByUserDetailsFromEventData._id) {
+
+                            if ((submissionForThisProblemMadeByUserDetailsFromEventData.is_cpu_executed) === true) {
+                                let passedTestCases = 0;
+                                const submissionTestCases = submissionForThisProblemMadeByUserDetailsFromEventData.test_cases;
+
+                                console.log("For Submission id: ", submissionForThisProblemMadeByUserDetailsFromEventData._id, "length of submissionTestCases is: ", submissionTestCases.length, "\n\n");
+
+                                for (let index = 0; index < submissionTestCases.length; index++) {
+                                    const testCase = submissionTestCases[index];
+                                    console.log("Processing Test Case: ", index);
+                                    console.log(testCase);
+                                    if (testCase.status.id === 3) {
+                                        console.log("This Test Case Is Accepted Thus Incrementing: ", passedTestCases);
+                                        passedTestCases++;
+                                    }
+                                    else {
+                                        newSubmissionDetails.status = testCase.status.description;
+                                        console.log("Breaking Here for Test Case: ", index);
+                                        break;
+                                    }
+                                }
+
+                                // Check If Passed All Test Cases
+                                if (passedTestCases === submissionTestCases.length) {
+                                    newSubmissionDetails.status = "Accepted";
+                                }
+                            }
+                            else {
+                                newSubmissionDetails.status = "Pending";
+                            }
+
+                        }
+
+                        return newSubmissionDetails;
+                    })
+
+                    console.log("Final Processed Submission's Array: ");
+                    console.log(newAllSubmissionsToThisProblem);
+
+                    return newAllSubmissionsToThisProblem;
+                });
+
+                // Show Toast Notification that Successfully Got Submissions
+                toast.success(metadata.message);
+
+                // Sleep for 1s to show Toast Notification
+                await sleep(1000);
+
+
+            }
+            // Else Request Processing is not done then Tell User What May Went Wrong
+            else {
+                console.log(data);
+                console.log(metadata);
+
+                toast.error(metadata.message);
+                await sleep(1000);
+                toast.error("Seems Like Something Wrong while Executing your Submission....");
                 await sleep(1000);
 
             }
@@ -203,10 +658,10 @@ const ProblemEditor = () => {
 
                 {/* Run & Submit Button Controls - Starts Here */}
                 <div className="flex flex-row text-sm lg:text-normal gap-2 lg:gap-4 poppins-semibold">
-                    <button onClick={handleClickOnRunButton} className="transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 border-blue-400 rounded-full hover:border-[#0a1732cc] active:scale-[0.8]">
+                    <button id="run-button" onClick={handleClickOnRunButton} className="transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 border-blue-400 rounded-full hover:border-[#0a1732cc] active:scale-[0.8] disabled:opacity-[0.2] disabled:animate-pulse">
                         Run
                     </button>
-                    <button onClick={handleClickOnSubmitButton} className="transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 border-green-400 rounded-full hover:border-[#0a1732cc] active:scale-[0.8]">
+                    <button id="submit-button" onClick={handleClickOnSubmitButton} className="transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 border-green-400 rounded-full hover:border-[#0a1732cc] active:scale-[0.8] disabled:opacity-[0.2] disabled:animate-pulse">
                         Submit
                     </button>
                 </div>
@@ -328,21 +783,73 @@ const ProblemEditor = () => {
 
 
                 {/* Problem's Submissions - Starts Here */}
-                {visiblePart.problemSubmissions ? <>
+                {(visiblePart.problemSubmissions && allSubmissionsToThisProblem) ? <>
+
+                    {/* Submissions' Filters - Starts Here */}
+                    <div className="flex flex-row gap-4">
+                        <button id="all" onClick={handleClickOnSubmissionsFilterButton} className={`transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 rounded-full hover:border-[#0a1732cc] ${submissionFilter === "all" ? "scale-[1.2] border-[#0a1732]" : "border-[#0a173266]"}`}>
+                            All
+                        </button>
+                        <button id="public" onClick={handleClickOnSubmissionsFilterButton} className={`transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 rounded-full hover:border-[#0a1732cc] ${submissionFilter === "public" ? "scale-[1.2] border-[#0a1732]" : "border-[#0a173266]"}`}>
+                            Public
+                        </button>
+                        <button id="private" onClick={handleClickOnSubmissionsFilterButton} className={`transition-all duration-[0.4s] cursor-pointer px-4 py-1 border border-2 rounded-full hover:border-[#0a1732cc] ${submissionFilter === "private" ? "scale-[1.2] border-[#0a1732]" : "border-[#0a173266]"}`}>
+                            Private
+                        </button>
+                    </div>
+                    {/* Submissions' Filters - Ends Here */}
+
+
                     <div className="pt-2 pe-2 h-[70vh] overflow-y-scroll">
 
-                        Hi i am Submission Details Part for problem Slug: {slug}
-                        <div className="p-4"></div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
-                        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem dolorem, soluta repellendus pariatur, ut quidem minima dicta beatae, voluptates esse ipsam hic! Obcaecati quaerat nihil excepturi aut facere illo, inventore iure ullam dicta placeat odio asperiores cumque necessitatibus debitis in?</div>
+                        <div className="mt-8 flex flex-col gap-8">
+
+                            {allSubmissionsToThisProblem.map((submission, index) => {
+                                return <div
+                                    key={`${problemDetails.slug}-submission-${index}`}
+                                    className={`
+
+                                        border border-2 border-[#0a173266] rounded-xl py-2 px-4 flex flex-col gap-1
+                                        
+                                        ${(
+                                            (submissionFilter === "public" && submission.is_for_public_test_cases === false)
+                                            ||
+                                            (submissionFilter === "private" && submission.is_for_public_test_cases === true)
+                                        ) ? "hidden" : ""} 
+
+                                        ${submission.status === "Pending" ? "animate-pulse" : ""}
+
+                                        `}>
+
+                                    <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+
+                                        <h3 className={`text-xl ${submission.status === "Accepted" ? "text-green-400" : (submission.status === "Pending" ? "text-yellow-400" : "text-red-400")} poppins-medium`}>
+                                            {submission.status}
+                                        </h3>
+
+
+                                        <div className="flex flex-col gap-1">
+                                            <h3 className="text-sm black-100-text">
+                                                Created At:
+                                            </h3>
+                                            <p className="text-sm black-80-text">
+                                                {getLocalDateTimeStringFromISOString(submission.createdAt)}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-0">
+                                        <p className={`text-sm ${(submission.is_for_public_test_cases) ? "secondary-color-text" : "primary-color-text"}`}>
+                                            {(submission.is_for_public_test_cases) ? "Public" : "Private"}
+                                        </p>
+                                        <p className="text-xs black-40-text poppins-regular">
+                                            {(submission._id).substr(0, 7)}
+                                        </p>
+                                    </div>
+                                </div>
+                            })}
+                        </div>
+
                     </div>
 
                 </> : <></>}
@@ -353,10 +860,13 @@ const ProblemEditor = () => {
 
             {/* Problem' Code Editor Section - Starts Here  */}
             <div className="w-full h-full flex flex-col">
-                <CodeEditor />
+                <CodeEditor
+                    onCodeLanguageChange={handleCodeLanguageChange}
+                    onCodeStringChange={handleCodeStringChange}
+                />
             </div>
             {/* Problem' Code Editor Section - Ends Here  */}
-        </div>
+        </div >
     </>;
 };
 
