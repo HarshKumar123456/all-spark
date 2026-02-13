@@ -224,6 +224,36 @@ const controlCreateProblem = async (data, metadata) => {
             test_cases: test_cases,
         };
 
+        // Process Test Cases to Encode the Expected Output and Stdin into the Base64 Format
+        problemData.test_cases = (problemData.test_cases).map((testCase) => {
+            const base64EncodedPublicTestCases = (testCase.public_test_cases).map((publicTestCase) => {
+                return {
+                    ...publicTestCase,
+                    ["expected_output"]: btoa(publicTestCase.expected_output),
+                    ["stdin"]: btoa(publicTestCase.stdin),
+                };
+            });
+
+            const base64EncodedPrivateTestCases = (testCase.private_test_cases).map((privateTestCase) => {
+                return {
+                    ...privateTestCase,
+                    ["expected_output"]: btoa(privateTestCase.expected_output),
+                    ["stdin"]: btoa(privateTestCase.stdin),
+                };
+            });
+
+            const updatedTestCase = {
+                ...testCase,
+                public_test_cases: base64EncodedPublicTestCases,
+                private_test_cases: base64EncodedPrivateTestCases,
+            };
+
+            return updatedTestCase;
+        });
+
+        // console.log("Updated Problem Details: ");
+        // console.log(problemData);
+
 
         if (metadata.source === "permission-service") {
 
@@ -341,17 +371,49 @@ const controlUpdateProblem = async (data, metadata) => {
             updatedProblemData.is_public = is_public;
         }
 
-        if(test_cases) {
+        if (test_cases) {
             updatedProblemData.test_cases = test_cases;
         }
-
+        
         const filter = {
             _id: _id,
             created_by: created_by,
         };
-
-
+        
+        
         if (metadata.source === "permission-service") {
+            
+            
+            // Process Test Cases to Encode the Expected Output and Stdin into the Base64 Format
+            updatedProblemData.test_cases = (updatedProblemData.test_cases).map((testCase) => {
+                const base64EncodedPublicTestCases = (testCase.public_test_cases).map((publicTestCase) => {
+                    return {
+                        ...publicTestCase,
+                        ["expected_output"]: btoa(publicTestCase.expected_output),
+                        ["stdin"]: btoa(publicTestCase.stdin),
+                    };
+                });
+    
+                const base64EncodedPrivateTestCases = (testCase.private_test_cases).map((privateTestCase) => {
+                    return {
+                        ...privateTestCase,
+                        ["expected_output"]: btoa(privateTestCase.expected_output),
+                        ["stdin"]: btoa(privateTestCase.stdin),
+                    };
+                });
+    
+                const updatedTestCase = {
+                    ...testCase,
+                    public_test_cases: base64EncodedPublicTestCases,
+                    private_test_cases: base64EncodedPrivateTestCases,
+                };
+    
+                return updatedTestCase;
+            });
+
+            // console.log("Base64 Encoding is done: ");
+            // console.log(updatedProblemData.test_cases[1].public_test_cases);
+            // console.log(updatedProblemData.test_cases[1].private_test_cases);
 
 
             // Update Problem

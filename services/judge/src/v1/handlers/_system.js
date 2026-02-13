@@ -76,11 +76,12 @@ const _systemExecuteSubmissionOfPracticeProblem = async (data, metadata) => {
 
             const { language_id, source_code, test_cases } = data._system.data;
 
+            // Encode the Source Code into Base64
             const submissions = test_cases.map((testCase) => {
                 return {
                     ...testCase,
                     language_id: language_id,
-                    source_code: source_code,
+                    source_code: btoa(source_code),
                 };
             });
 
@@ -93,7 +94,7 @@ const _systemExecuteSubmissionOfPracticeProblem = async (data, metadata) => {
 
 
             // Make Request to the Code Execution Engine 
-            const response = await axios.post(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch`, payload);
+            const response = await axios.post(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch?base64_encoded=true`, payload);
 
             const submissionResponseTokens = response.data; // [ {token: "...."}, {token: "...."}, .... ] we will get as response the respective submission token for identifying it later on to request the final status of the submission  
 
@@ -207,11 +208,12 @@ const _systemExecuteSubmissionOfContestProblem = async (data, metadata) => {
 
             const { language_id, source_code, test_cases } = data._system.data;
 
+            // Encode the Source Code into Base64
             const submissions = test_cases.map((testCase) => {
                 return {
                     ...testCase,
                     language_id: language_id,
-                    source_code: source_code,
+                    source_code: btoa(source_code),
                 };
             });
 
@@ -221,7 +223,7 @@ const _systemExecuteSubmissionOfContestProblem = async (data, metadata) => {
 
 
             // Make Request to the Code Execution Engine 
-            const response = await axios.post(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch`, payload);
+            const response = await axios.post(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch?base64_encoded=true`, payload);
 
             const submissionResponseTokens = response.data; // [ {token: "...."}, {token: "...."}, .... ] we will get as response the respective submission token for identifying it later on to request the final status of the submission  
 
@@ -336,7 +338,7 @@ const _systemGetUpdatesOfTheSubmissionOfPracticeProblem = async (data, metadata)
 
 
             // Make Request to the Code Execution Engine 
-            const response = await axios.get(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch?tokens=${allTokenString}`);
+            const response = await axios.get(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch?tokens=${allTokenString}&base64_encoded=true`);
 
             const allTokenStringResponseStatuses = response.data.submissions;
             /*
@@ -348,7 +350,7 @@ const _systemGetUpdatesOfTheSubmissionOfPracticeProblem = async (data, metadata)
                         id: <Integer Like 1,2,3,4,...14>, 
                         description: <Info>
                     },  
-                    std_out: <String>, 
+                    std_out: <String>, Encoded in Base64
                     stderr: <String>,
                     ....
                 }, 
@@ -359,7 +361,7 @@ const _systemGetUpdatesOfTheSubmissionOfPracticeProblem = async (data, metadata)
                         id: <Integer Like 1,2,3,4,...14>, 
                         description: <Info>
                     },  
-                    std_out: <String>, 
+                    std_out: <String>, Encoded in Base64
                     stderr: <String>,
                     ....
                 }, 
@@ -384,9 +386,13 @@ const _systemGetUpdatesOfTheSubmissionOfPracticeProblem = async (data, metadata)
 
 
             const updatedTestCases = test_cases.map((testCase, index) => {
+                // console.log("std_out in response: ", allTokenStringResponseStatuses[index].std_out);
+                const decodedOutputIfExists = allTokenStringResponseStatuses[index].std_out ? atob(allTokenStringResponseStatuses[index].std_out) : "";
                 return {
                     ...testCase,
                     ...allTokenStringResponseStatuses[index],
+                    // Decode Output From Base64 to String
+                    ["std_out"]: decodedOutputIfExists,
                 };
             });
 
@@ -497,7 +503,7 @@ const _systemGetUpdatesOfTheSubmissionOfContestProblem = async (data, metadata) 
 
 
             // Make Request to the Code Execution Engine 
-            const response = await axios.get(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch?tokens=${allTokenString}`);
+            const response = await axios.get(`${CODE_EXECUTION_ENGINE_API_URL}/submissions/batch?tokens=${allTokenString}&base64_encoded=true`);
 
             const allTokenStringResponseStatuses = response.data.submissions;
             /*
@@ -505,15 +511,23 @@ const _systemGetUpdatesOfTheSubmissionOfContestProblem = async (data, metadata) 
                 {
                     ..., 
                     language_id: "....", 
-                    status_id: <Integer Like 1,2,3,4,...14>, 
-                    std_out: <String>, 
+                    status: {
+                        id: <Integer Like 1,2,3,4,...14>, 
+                        description: <Info>
+                    },  
+                    std_out: <String>, Encoded in Base64
+                    stderr: <String>,
                     ....
                 }, 
                 {
                     ..., 
                     language_id: "....", 
-                    status_id: <Integer Like 1,2,3,4,...14>, 
-                    std_out: <String>, 
+                    status: {
+                        id: <Integer Like 1,2,3,4,...14>, 
+                        description: <Info>
+                    },  
+                    std_out: <String>, Encoded in Base64
+                    stderr: <String>,
                     ....
                 }, 
                 ....
@@ -537,9 +551,13 @@ const _systemGetUpdatesOfTheSubmissionOfContestProblem = async (data, metadata) 
 
 
             const updatedTestCases = test_cases.map((testCase, index) => {
+                // console.log("std_out in response: ", allTokenStringResponseStatuses[index].std_out);
+                const decodedOutputIfExists = allTokenStringResponseStatuses[index].std_out ? atob(allTokenStringResponseStatuses[index].std_out) : "";
                 return {
                     ...testCase,
                     ...allTokenStringResponseStatuses[index],
+                    // Decode Output From Base64 to String
+                    ["std_out"]: decodedOutputIfExists,
                 };
             });
 
