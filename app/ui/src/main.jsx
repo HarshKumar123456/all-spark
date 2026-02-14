@@ -18,6 +18,9 @@ import UserDashboard from "./pages/users/UserDashboard.jsx";
 
 // For Toast Notification & Sorry if You were Expecting some other package here for this use case :)
 import { Toaster } from 'sonner';
+import About from "./pages/about/About.jsx";
+import Careers from "./pages/careers/Careers.jsx";
+import ContestsList from "./pages/contests/ContestsList.jsx";
 
 
 ReactDOM.createRoot(root).render(
@@ -35,6 +38,9 @@ ReactDOM.createRoot(root).render(
         <Routes>
           <Route index element={<App />} />
 
+          <Route path="about" element={<About />} />
+          <Route path="careers" element={<Careers />} />
+
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<SignUp />} />
           <Route path="logout" element={<LogOut />} />
@@ -51,6 +57,12 @@ ReactDOM.createRoot(root).render(
             <Route path="dashboard" element={<UserDashboard />} />
 
           </Route>
+
+          <Route path="contests">
+            <Route index element={<ContestsList />} />
+            <Route path="all" element={<ContestsList />} />
+
+          </Route> 
 
 
 

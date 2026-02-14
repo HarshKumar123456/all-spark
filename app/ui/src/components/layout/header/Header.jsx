@@ -47,9 +47,9 @@ const Header = () => {
                         </li>
                     </Link>
 
-                    <Link to="/career">
+                    <Link to="/careers">
                         <li className="text-xl poppins-regular">
-                            Career
+                            Careers
                         </li>
                     </Link>
 
@@ -129,9 +129,9 @@ const Header = () => {
                             </li>
                         </Link>
 
-                        <Link to="/career">
+                        <Link to="/careers">
                             <li className="border border-0 border-b-1 border-[#0a173233] hover:border-[#0a1732cc] text-xl poppins-regular">
-                                Career
+                                Careers
                             </li>
                         </Link>
 

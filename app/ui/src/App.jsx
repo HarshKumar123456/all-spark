@@ -5,6 +5,11 @@ import { Link } from "react-router-dom";
 import Heading from "./components/heading/Heading";
 import FeatureBox from "./components/feature/FeatureBox";
 
+import gearsIconSVG from "./assets/icons/gears-icon.svg";
+import infinityIconSVG from "./assets/icons/infinity-icon.svg";
+import keyholeIconSVG from "./assets/icons/keyhole-icon.svg";
+import serverIconSVG from "./assets/icons/server-icon.svg";
+
 const App = () => {
 
   const features = [
@@ -12,7 +17,7 @@ const App = () => {
       name: "Open Source",
       description: "Code is Available on GitHub for Everyone to collaborate and improve this software",
       imageInfo: {
-        url: "https://picsum.photos/800",
+        url: keyholeIconSVG,
         altText: "Open Source Feature Icon"
       },
     },
@@ -21,7 +26,7 @@ const App = () => {
       name: "Self Hostable",
       description: "You can deploy on your own infra with just a click",
       imageInfo: {
-        url: "https://picsum.photos/800",
+        url: serverIconSVG,
         altText: "Self Hostable Feature Icon"
       },
     },
@@ -31,7 +36,7 @@ const App = () => {
       name: "Event Driven",
       description: "Powers development flexibility, feature addition made quicker and easier",
       imageInfo: {
-        url: "https://picsum.photos/800",
+        url: gearsIconSVG,
         altText: "Distributed Event Driven Feature Icon"
       },
     },
@@ -41,7 +46,7 @@ const App = () => {
       name: "Scalable",
       description: "With microservices' architecture it can scale upto your needs",
       imageInfo: {
-        url: "https://picsum.photos/800",
+        url: infinityIconSVG,
         altText: "Distributed Event Driven Feature Icon"
       },
     },
