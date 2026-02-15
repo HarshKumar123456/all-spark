@@ -3,7 +3,7 @@ import express from "express";
 
 // Importing the Runtime Configurations for API functioning Version 1
 import { initializeTopics } from "./utils/v1/kafkaAdmin.js";
-import { connectProducer } from "../permissions/utils/v1/kafkaProducer.js";
+import { connectProducer } from "./utils/v1/kafkaProducer.js";
 import consumeEvents from "./src/v1/logic.js";
 
 const app = express();

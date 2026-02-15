@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { sendEvent } from "../../../permissions/utils/v1/kafkaProducer.js";
+import { sendEvent } from "../../utils/v1/kafkaProducer.js";
 import { kafka } from "../../config/v1/kafka.js";
 import { signToken, verifyToken } from "../../utils/v1/jwt.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
