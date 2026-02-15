@@ -70,7 +70,7 @@ const ProblemsList = () => {
 
                 // console.log("Response From the AUTH API Call: ");
                 // console.log(res);
-                toast.success(res.data.message);
+                toast.success(response.data.message);
 
 
             } catch (error) {

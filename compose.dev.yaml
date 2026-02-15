@@ -1,0 +1,426 @@
+###################################################
+# Services
+#
+# The services define the individual components of our application stack.
+# For each service, a separate container will be launched.
+###################################################
+services:
+
+  ###################################################
+  # Service: zookeeper
+  #
+  # 
+  ###################################################
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: kafka
+  #
+  # 
+  ###################################################
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: redis
+  #
+  # 
+  ###################################################
+  redis:
+    image: redis/redis-stack
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: db
+  #
+  # 
+  ###################################################
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: ui
+  #
+  # The ui service is the React app that provides the frontend for the app.
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  ui:
+    build:
+      context: ./app/ui
+      target: ui-dev
+
+    volumes:
+      # Below line will sync changes from ui folder to container and vice versa used for hot reloading
+      - ./app/ui:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 5173:5173
+
+    env_file:
+      - ./main.conf
+
+
+
+     
+
+
+
+
+  ###################################################
+  # Service: api
+  #
+  # The api service is the Node.js application that provides the API GW for the app.
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  api:
+    build:
+      context: ./app/api
+      target: api-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./app/api:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 8000:8000
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+  # Please Note: From Here All the Services will be Micro-Services That are into the services folder and they will be processing the events published by the API GW onto the Event Streaming Queue
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: auth
+  #
+  # The auth service is the Node.js application that Processes the events Published related to the Authorization
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  auth:
+    build:
+      context: ./services/auth
+      target: auth-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/auth:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3100:3100
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: contests
+  #
+  # The contests service is the Node.js application that Processes the events Published related to the Contests
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  contests:
+    build:
+      context: ./services/contests
+      target: contests-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/contests:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3200:3200
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: judge
+  #
+  # The judge service is the Node.js application that Processes the events Published related to the Judge
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  judge:
+    build:
+      context: ./services/judge
+      target: judge-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/judge:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3300:3300
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: permissions
+  #
+  # The permissions service is the Node.js application that Processes the events Published related to the Permissions
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  permissions:
+    build:
+      context: ./services/permissions
+      target: permissions-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/permissions:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3400:3400
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: problems
+  #
+  # The problems service is the Node.js application that Processes the events Published related to the Problems
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  problems:
+    build:
+      context: ./services/problems
+      target: problems-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/problems:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3500:3500
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: submissions
+  #
+  # The submissions service is the Node.js application that Processes the events Published related to the Submissions
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  submissions:
+    build:
+      context: ./services/submissions
+      target: submissions-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/submissions:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3700:3700
+    
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+  ###################################################
+  # Service: users
+  #
+  # The users service is the Node.js application that Processes the events Published related to the Users
+  # When the container starts, it will use the image that results from building
+  # the Dockerfile, targeting the dev stage.
+  #
+  # The Compose Volume configuration is used to automatically sync the code from
+  # the host machine to the container and vice-versa. This allows the ui to be automatically
+  # reloaded when code changes are made.
+  # 
+  ###################################################
+  users:
+    build:
+      context: ./services/users
+      target: users-dev
+
+    volumes:
+      # Below line will sync changes from api folder to container and vice versa used for hot reloading
+      - ./services/users:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 3900:3900
+    
+    env_file:
+      - ./main.conf
