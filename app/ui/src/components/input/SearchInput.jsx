@@ -1,6 +1,6 @@
 import React from "react";
 
-const SearchInput = ({ id, value, onValueChange, placeholderText }) => {
+const SearchInput = ({ id, value, onValueChange, placeholderText, onKeyDown }) => {
     return <>
         <input
             className="w-full rounded-full px-8 lg:px-12 py-4 bg-[#0a17320d] outline-[#0a173266]"
@@ -9,6 +9,7 @@ const SearchInput = ({ id, value, onValueChange, placeholderText }) => {
             id={`${id}`}
             value={value}
             onChange={onValueChange}
+            onKeyDown={onKeyDown}
         />
     </>;
 };

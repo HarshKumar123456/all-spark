@@ -9,6 +9,8 @@ import { useWebSocketContext } from "../../contexts/WebSocketContext";
 import { useSocketListener } from "../../hooks/useSocketListener";
 import { toast } from "sonner";
 import axios from "axios";
+import TagsInput from "../../components/input/TagsInput";
+import SingleSelectInput from "../../components/input/SingleSelectInput";
 
 const ProblemsList = () => {
 
@@ -54,6 +56,66 @@ const ProblemsList = () => {
 
     const { isConnected, clientId } = useWebSocketContext();
 
+    const [loadingProblems, setLoadingProblems] = useState(false);
+
+    const [filterValue, setFilterValue] = useState({
+        tags: [],
+        difficulty: "",
+    });
+
+    const handleClickOnSearchEnterButton = async (searchText) => {
+        try {
+
+
+            if (loadingProblems) {
+                console.log("Please Wait! Already Loading Problems....");
+                toast.loading("Please Wait! Already Loading Problems....");
+                return;
+            }
+
+            toast.loading("Loading Problems....");
+            console.log("Search Text is....");
+            console.log(searchText);
+            console.log("Filter is....");
+            console.log(filterValue);
+            setLoadingProblems(true);
+
+            const payload = {
+                name: searchText,
+                slug: searchText,
+                tags: (filterValue?.tags).length > 0 ? filterValue?.tags || null : null,
+                description: searchText,
+                difficulty: (filterValue?.difficulty?.length > 0 ? (filterValue.difficulty === "all" ? null : filterValue.difficulty) : null) || null,
+            };
+
+
+            // console.log("Payload to search problems....");
+            // console.log(payload);
+
+
+
+            const response = await axios.post(`${API_BASE}/problems/search`, payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "client-id": clientId
+                }
+            });
+
+            toast.success(response.data.message);
+            await sleep(1000);
+
+        } catch (error) {
+            // Clear All Toasts
+            toast.dismiss();
+            setLoadingProblems(false);
+
+
+            console.log(error);
+            console.log("Something Went Wrong While Making the PROBLEMS' API Call....", error);
+            toast.error("Something went Wrong....");
+        }
+    };
+
 
 
 
@@ -68,8 +130,6 @@ const ProblemsList = () => {
                     }
                 })
 
-                // console.log("Response From the AUTH API Call: ");
-                // console.log(res);
                 toast.success(response.data.message);
 
 
@@ -90,18 +150,20 @@ const ProblemsList = () => {
 
 
     // Websocket Event Listening Logic - Starts Here
-    // Listener 1: Handle Valid Signup Response
+    // Listener 1: Handle Valid Get All Problems Response
     useSocketListener(
         // Selector: "Is this message for me?"
         (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("problems.getAllProblems"),
 
         // Handler: "What do I do with it?"
         async (msg) => {
+            // Clear the Previous Toast Notifications
+            toast.dismiss();
+
             const { data, metadata } = msg;
 
-            // If Signup is Success then Save The Token For further Accesses 
+            // If Get All Problems is Success then Save The Problems For further Accesses 
             if (metadata?.success === true) {
-                // alert("Signed up Successfully....");
                 console.log(data);
                 console.log(metadata);
 
@@ -121,27 +183,87 @@ const ProblemsList = () => {
                     return newTableRowsData;
                 });
 
+                setLoadingProblems(false);
 
-                // Show Toast Notification that Successfully Signed Up
+
+                // Show Toast Notification that Successfully Completed Request 
                 toast.success(metadata.message);
 
                 // Sleep for 1s to show Toast Notification
                 await sleep(1000);
 
-                
+
             }
-            // Else Signup is not done then Tell User What May Went Wrong
+            // Else Request is not done then Tell User What May Went Wrong
             else {
                 console.log(data);
                 console.log(metadata);
 
                 toast.error(metadata.message);
                 await sleep(1000);
-               
+
 
             }
         }
     );
+
+    // Listener 2: Handle Valid Search Problems with Filter Made By User Response 
+    useSocketListener(
+        // Selector: "Is this message for me?"
+        (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("problems.search"),
+
+        // Handler: "What do I do with it?"
+        async (msg) => {
+            // Clear the Previous Toast Notifications
+            toast.dismiss();
+            
+            const { data, metadata } = msg;
+
+            // If Search Problems is Success then Save The Problems For further Accesses 
+            if (metadata?.success === true) {
+                console.log(data);
+                console.log(metadata);
+
+                // Setting All Problems from Event Data
+                const allProblemsFromEventData = data.result;
+
+                setTableRowsData(() => {
+                    const newTableRowsData = allProblemsFromEventData.map((problem, index) => {
+                        return {
+                            id: index + 1,
+                            name: problem.name,
+                            difficulty: problem.difficulty,
+                            slug: problem.slug,
+                        };
+                    });
+
+                    return newTableRowsData;
+                });
+
+                setLoadingProblems(false);
+
+
+                // Show Toast Notification that Successfully Completed Request 
+                toast.success(metadata.message);
+
+                // Sleep for 1s to show Toast Notification
+                await sleep(1000);
+
+
+            }
+            // Else Request is not done then Tell User What May Went Wrong
+            else {
+                console.log(data);
+                console.log(metadata);
+
+                toast.error(metadata.message);
+                await sleep(1000);
+
+
+            }
+        }
+    );
+
 
     // Websocket Event Listening Logic - Ends Here
 
@@ -157,8 +279,68 @@ const ProblemsList = () => {
                     text={`Problems`}
                 />
 
-                <SearchControls
-                />
+
+                {/* Search Controls - Starts Here */}
+                <div
+                    className={`w-full ${loadingProblems ? "animate-pulse" : ""}`}
+                >
+
+                    <SearchControls
+                        placeholderText={`Search: Add Numbers, Factorial....`}
+                        onClickSubmitSearchButton={handleClickOnSearchEnterButton}
+                    >
+                        <SearchControls.Filter>
+
+                            <>
+                                <div className="w-full px-4 py-8 my-8 flex flex-col gap-8 border border-2 border-[#0a13720d] rounded-xl">
+
+                                    <Heading
+                                        text={`Filters`}
+                                    />
+
+                                    <TagsInput
+                                        id={`problems-filter-tags`}
+                                        value={filterValue.tags}
+                                        onValueChange={(tags) => {
+                                            setFilterValue((prev) => {
+                                                return {
+                                                    ...prev,
+                                                    tags: tags,
+                                                };
+                                            });
+                                        }}
+                                        placeholderText={`Add Problem's Tags like array, string....`}
+                                        tagsHeading={`Problem's Tags`}
+                                    />
+
+                                    <SingleSelectInput
+                                        id="problems-filter-difficulty"
+                                        value={filterValue.difficulty}
+                                        onValueChange={(e) =>
+                                            setFilterValue(prev => ({
+                                                ...prev,
+                                                difficulty: e.target.value
+                                            }))
+                                        }
+                                        placeholderText="Select Problem's difficulty...."
+                                        options={[
+                                            { label: "All", value: "all" },
+                                            { label: "Easy", value: "easy" },
+                                            { label: "Medium", value: "medium" },
+                                            { label: "Hard", value: "hard" },
+                                        ]}
+                                        optionsHeading={`Difficulty`}
+                                    />
+                                </div>
+                            </>
+
+                        </SearchControls.Filter>
+                    </SearchControls>
+
+                </div>
+
+                {/* Search Controls - Ends Here */}
+
 
                 <div className="w-full flex flex-col items-center mt-8 px-8 lg:px-16 py-16 lg:py-8">
                     {(tableRowsData && tableRowsData.length > 0) ? <>
@@ -199,7 +381,7 @@ const ProblemsList = () => {
                                             {tableRow.name}
                                         </td>
                                         <td className="mb-4 py-4">
-                                            <span className={`px-4 py-1 border rounded-full ${tableRow.difficulty == "easy" ? "text-green-400" : (tableRow.difficulty === "medium" ? "text-yellow-400" : "text-red-400")} text-sm poppins-semibold`}>
+                                            <span className={`px-4 py-1 border rounded-full ${tableRow.difficulty === "easy" ? "text-green-400" : (tableRow.difficulty === "medium" ? "text-yellow-400" : "text-red-400")} text-sm poppins-semibold`}>
 
                                                 {(tableRow.difficulty).toUpperCase()}
                                             </span>

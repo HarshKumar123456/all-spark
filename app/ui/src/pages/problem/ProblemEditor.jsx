@@ -740,7 +740,7 @@ const ProblemEditor = () => {
                                 <div className="flex flex-col gap-4 lg:flex-row justify-between lg:items-center">
                                     <div>
 
-                                        <span className={`px-4 py-1 border border-2 rounded-full ${problemDetails.difficulty == "easy" ? "text-green-400" : (problemDetails.difficulty === "medium" ? "text-yellow-400" : "text-red-400")} text-sm poppins-semibold`}>
+                                        <span className={`px-4 py-1 border border-2 rounded-full ${problemDetails.difficulty === "easy" ? "text-green-400" : (problemDetails.difficulty === "medium" ? "text-yellow-400" : "text-red-400")} text-sm poppins-semibold`}>
 
                                             {(problemDetails.difficulty).toUpperCase()}
                                         </span>
