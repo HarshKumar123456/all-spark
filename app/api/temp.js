@@ -46,6 +46,10 @@ const initializeTopics = async () => {
 
             // Other Services' Event Update Events
             "contests.startContest.complete",
+            "contests.startContest.corrupt",
+            "contests.register.complete",
+            "contests.register.corrupt",
+            
 
 
             // Normal User Usage Events

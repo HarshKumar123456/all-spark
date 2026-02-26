@@ -406,13 +406,44 @@ const registerForContest = async (data, metadata) => {
                 return;
             }
 
-
+            
             // Process the data and prepare the Response
             data = { ...data, result: newParticipant };
 
             metadata.success = true;
             metadata.message = "Registered for the Contest Successfully....";
             await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+
+            
+            // Prepare _system data and emit event "contests.register.complete" so that relevant actions like updating in User's "participated_in_contests" fields can be done 
+            
+            // This is Objest's Structure for the System's Internal Data Flow unlike everything flowing in the Project this will also tell what data it has and information about that data will be in metadata
+            const _system = {
+                data: {
+                    user_id: user_id,
+                    contest_id: contest_id,
+                },
+                metadata: {
+                    createdAt: (new Date()).toISOString(),
+                    cache: {
+                        hits: 0,
+                        misses: 0,
+                    },
+                }
+            };
+
+            _system.metadata.success = true;
+            _system.metadata.message = "Details of the Participant who Registered for Contest....";
+            _system.metadata.source = CURR_SERVICE_NAME;
+            _system.metadata.updatedAt = (new Date()).toISOString();
+
+            // Add _system data to the data field of the Event
+            data = {...data, _system: _system };
+
+            // Send Event to topic "contests.register.complete"
+            await sendEvent("contests.register.complete", await getPartition(), data, metadata);
+
+            
 
             return;
         }

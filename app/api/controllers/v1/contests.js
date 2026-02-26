@@ -177,7 +177,7 @@ const getSpecificContestDetailsController = async (req, res) => {
 
     try {
 
-        const { _id } = req.body;
+        const { _id } = req.body || {}; // Make req.body as optional
         const slug = req.params.slug;
 
         if (!(_id || slug)) {

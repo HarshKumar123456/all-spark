@@ -683,6 +683,124 @@ const _systemSubmissionMadeThusUpdateTriedProblemsForUser = async (data, metadat
 };
 
 
+const _systemRegisteredForContestThusUpdateParticipatedContestForUser = async (data, metadata) => {
+
+    try {
+
+
+        // const data = {
+        //     ...(Some Data Recieved From The Client Side or Initial Request to the API),
+        //     result: <result>, // Some Data Required To Send to Client Side or to source who does the Initial Request to the API
+        //     _system: {
+        //         data: {
+        //             user_id: user._id, // The User Id
+        //             contest_id: contest._id,
+        //         },
+        //         metadata: {
+        //             source: "contest-service",
+        //             createdAt: "<Date in ISO String Format>", // Time when this System's internal Data Processing Request was created
+        //             cache: {
+        //                  hits: <hits>,
+        //                  misses: <misses>,
+        //             },
+        //             updatedAt: "<Date in ISO String Format>", // Every other function will update this after its processing so that it can be tracked how much time that function took to execute
+        //         }
+        //     },
+        // };
+
+
+
+
+        // const metadata = {
+        //     // Not To Be Changed Fields
+
+        //     clientId: "<clientId>", // This is Websocket Id Which will be used for sending back the data to the client
+        //     requestId: "<requestId>", // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
+        //     actor: {
+        //         userId: "<userId>", // This will be used to fetch details of the user from the DB if Required
+        //         role: "<role>", // Role of user will be only one of these: ADMIN , CONTEST_SCHEDULER , SUPPORT , USER , PUBLIC
+        //         token: "<userToken>", // This is JWT Token of the User by which we will validate the aunthenticity of User and check if he or she is allowed to have the desired operation performed
+        //     },
+        //     operation: "<Any Operation Name Which is To be searched onto the Permission's Table>", // This will tell about what initial request was and processing will be done as per this 
+        //     createdAt: "<Date in ISO String Format>", // Time when this request was created
+
+        //     // To be Changed Fields
+
+        //     source: "This is The Last Service name by which this event is Generated",
+        //     updatedAt: "<Date in ISO String Format>", // Every other function will update this after its processing so that it can be tracked how much time that function took to execute
+        // };
+
+
+
+        // Since we have got the Update that User Has Successfully Registered for the Contest thus update that thing in the Background Silently
+        if (data._system.metadata.source === "contest-service") {
+
+            data._system.metadata.source = CURR_SERVICE_NAME;
+
+            const {
+                contest_id, // This Will be the Contest Id for which the User has registered
+                user_id, // This Will be User Id Which is Being Considered to Update its "participated_in_contests" field 
+            } = data._system.data;
+
+            const filter = {
+                _id: user_id, // This is User's Id By Which The User will be Find
+            };
+
+
+
+            // Since we have the "users.control.update" already we might think to update from there if we extend that function beyond just basic details but keeping things here for now for simplicity later can be extended
+            const user = await User.findOne(filter);
+
+            if (!user) {
+                console.log("Sorry! This User with _id: ", user_id, " doesn't Exists....");
+
+                data._system.metadata.success = false;
+                data._system.metadata.message = `Sorry! This User with _id: ${user_id} doesn't Exists....`;
+                data._system.metadata.updatedAt = (new Date()).toISOString();
+
+                const topic = "users._system.update.corrupt";
+                const partition = await getPartition();
+                await sendEvent(topic, partition, data, metadata);
+                return;
+            }
+
+            // Update User's Details and Save
+            user.participated_in_contests = [
+                ...(user.participated_in_contests),
+                contest_id
+            ];
+            await user.save();
+
+
+            data._system.metadata.success = true;
+            data._system.metadata.message = `This User with _id: ${user_id} updated Successfully....`;
+            data._system.metadata.updatedAt = (new Date()).toISOString();
+
+            const topic = "users._system.update.complete";
+            const partition = await getPartition();
+            await sendEvent(topic, partition, data, metadata);
+            return;
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        console.log("Something went wrong while handling in USER SERVICE while Updating the User's Details....");
+        data._system.metadata.source = CURR_SERVICE_NAME;
+        data._system.metadata.success = false;
+        data._system.metadata.message = "Something went Wrong while Updating the User's Details....";
+        data._system.metadata.updatedAt = (new Date()).toISOString();
+        const topic = "users._system.update.corrupt";
+        const partition = await getPartition();
+        await sendEvent(topic, partition, data, metadata);
+        return;
+
+    }
+
+
+};
+
+
 const handleUnknownEvent = async (data, metadata) => {
     await publishToRedisPubSub("unknown", JSON.stringify({ data: data, metadata: metadata }));
 };
@@ -709,6 +827,7 @@ const consumeEvents = async () => {
 
             // Other Services' Event Update Events
             "submissions.practice.update.complete",
+            "contests.register.complete",
         ];
 
 
@@ -728,6 +847,7 @@ const consumeEvents = async () => {
 
             // Other Services' Event Update Events
             "submissions.practice.update.complete": _systemSubmissionMadeThusUpdateTriedProblemsForUser,
+            "contests.register.complete": _systemRegisteredForContestThusUpdateParticipatedContestForUser,
         };
 
         const consumer = kafka.consumer({ groupId: CURR_SERVICE_NAME });

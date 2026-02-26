@@ -7,12 +7,10 @@ const participantSchema = mongoose.Schema(
         contest_id: {
             type: String,
             required: true,
-            unique: true,
         },
         user_id: {
             type: String,
             required: true,
-            unique: true,
         },
         score: {
             type: Number,
