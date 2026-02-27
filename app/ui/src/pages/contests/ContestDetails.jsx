@@ -43,7 +43,7 @@ const ContestDetails = () => {
 
     const handleClickOnRegisterForContestButton = async (e) => {
         // if user is logged in then send the user to the login page
-        if(!token) {
+        if (!token) {
             toast.error("Oops! You're not Logged in....");
             await sleep(1000);
             toast.loading("Redirecting you to login page....");
@@ -52,7 +52,7 @@ const ContestDetails = () => {
 
             navigate("/login");
 
-            return ;
+            return;
         }
 
         console.log("Inside handleClickOnRegisterForContestButton()....");
@@ -326,18 +326,17 @@ const ContestDetails = () => {
                             <div className="py-2 flex flex-row gap-4 text-2xl">
                                 {userJourneyInContest === "registered" ? <>
                                     {contestDetails.start_time <= (new Date()).toISOString() ? <>
-
-                                        <p className="text-green-400 poppins-semibold">
-                                            Registered
-                                        </p>
-
-                                    </> : <>
                                         <button
                                             disabled={contestDetails.start_time > (new Date()).toISOString()}
                                             onClick={handleClickOnStartContestButton}
                                             className="transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] bg-[#47FF4E] cursor-pointer py-3 lg:py-4 px-18 lg:px-20 text-xl lg:text-2xl text-white rounded-full disabled:opacity-[0.2] poppins-semibold custom-smooth-drop-shadow">
                                             Start
                                         </button>
+
+                                    </> : <>
+                                        <p className="text-red-400 poppins-semibold">
+                                            Registered
+                                        </p>
                                     </>}
                                 </> :
                                     contestDetails.start_time > (new Date()).toISOString() ?

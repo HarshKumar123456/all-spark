@@ -23,6 +23,7 @@ import Careers from "./pages/careers/Careers.jsx";
 import ContestsList from "./pages/contests/ContestsList.jsx";
 import ContestDetails from "./pages/contests/ContestDetails.jsx";
 import ContentStart from "./pages/contests/ContestStart.jsx";
+import ContestProblemEditor from "./pages/contests/ContestProblemEditor.jsx";
 
 
 ReactDOM.createRoot(root).render(
@@ -65,6 +66,7 @@ ReactDOM.createRoot(root).render(
             <Route path="all" element={<ContestsList />} />
             <Route path=":slug" element={<ContestDetails />} />
             <Route path="start/:slug" element={<ContentStart />} />
+            <Route path=":contestSlug/editor/:problemIndex" element={<ContestProblemEditor />} />
 
           </Route> 
 
