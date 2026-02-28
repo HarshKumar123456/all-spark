@@ -24,6 +24,7 @@ import ContestsList from "./pages/contests/ContestsList.jsx";
 import ContestDetails from "./pages/contests/ContestDetails.jsx";
 import ContentStart from "./pages/contests/ContestStart.jsx";
 import ContestProblemEditor from "./pages/contests/ContestProblemEditor.jsx";
+import ControlPanel from "./pages/admins/ControlPanel.jsx";
 
 
 ReactDOM.createRoot(root).render(
@@ -58,6 +59,12 @@ ReactDOM.createRoot(root).render(
           <Route path="users">
             <Route index element={<UserDashboard />} />
             <Route path="dashboard" element={<UserDashboard />} />
+
+          </Route>
+
+          <Route path="admins">
+            <Route index element={<ControlPanel />} />
+            <Route path="control-panel" element={<ControlPanel />} />
 
           </Route>
 
