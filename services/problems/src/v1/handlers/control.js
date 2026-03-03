@@ -337,7 +337,7 @@ const controlUpdateProblem = async (data, metadata) => {
             updatedProblemData.difficulty = difficulty;
         }
 
-        if (is_public) {
+        if (is_public === false || is_public === true) {
             updatedProblemData.is_public = is_public;
         }
 

@@ -5,9 +5,8 @@ import Heading from "../../components/heading/Heading";
 import ControlPanelLayout from "../../components/layout/ControlPanelLayout";
 import TextInput from "../../components/input/TextInput";
 
-const ControlPanel = () => {
+const ControlPanelOverview = () => {
 
-    const [tempText, setTempText] = useState("");
 
     return <>
         <ControlPanelLayout
@@ -18,10 +17,12 @@ const ControlPanel = () => {
 
             <div className="flex flex-col items-center">
 
-                <h2 className="text-lg lg:text-xl poppins-semibold">
+
+                <h2 className="text-xl lg:text-2xl black-80-text poppins-semibold">
                     Control Panel Allows You to Perform CRUD Operations on the Platform
                 </h2>
-                
+
+
             </div>
 
             {/* Control Panel's Details Section - Ends Here */}
@@ -29,4 +30,4 @@ const ControlPanel = () => {
     </>
 };
 
-export default ControlPanel;
+export default ControlPanelOverview;

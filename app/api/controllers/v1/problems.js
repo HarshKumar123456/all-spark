@@ -366,7 +366,7 @@ const controlGetSpecificProblemDetailsController = async (req, res) => {
 
     try {
 
-        const { _id } = req.body;
+        const { _id } = req.body || {}; // Make req.body optional
         const slug = req.params.slug;
 
         const clientId = req.get("client-id");
@@ -441,7 +441,8 @@ const controlCreateNewProblemController = async (req, res) => {
             test_cases,
         } = req.body;
 
-        if (!(name && slug && tags && description && difficulty && is_public && test_cases)) {
+        // Update "is_public" check as value "false" may give the conclusion that this field is not given based on check below by means of && operator
+        if (!(name && slug && tags && description && difficulty && (is_public === false || is_public === true) && test_cases)) {
             return res.status(400).json({
                 success: false,
                 message: "Please Provide Required details to Create Problem like: name, slug, tags, description, difficulty, is_public, test_cases....",

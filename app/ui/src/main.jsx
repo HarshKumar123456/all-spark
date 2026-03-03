@@ -25,6 +25,12 @@ import ContestDetails from "./pages/contests/ContestDetails.jsx";
 import ContentStart from "./pages/contests/ContestStart.jsx";
 import ContestProblemEditor from "./pages/contests/ContestProblemEditor.jsx";
 import ControlPanel from "./pages/admins/ControlPanel.jsx";
+import ControlPanelOverview from "./pages/admins/ControlPanelOverview.jsx";
+import ControlPanelProblemsList from "./pages/admins/problems/ControlPanelProblemsList.jsx";
+import ControlPanelProblemDetails from "./pages/admins/problems/ControlPanelProblemDetails.jsx";
+import ControlPanelProblemCreate from "./pages/admins/problems/ControlPanelProblemCreate.jsx";
+import ControlPanelProblemUpdate from "./pages/admins/problems/ControlPanelProblemUpdate.jsx";
+import ControlPanelProblemDelete from "./pages/admins/problems/ControlPanelProblemDelete.jsx";
 
 
 ReactDOM.createRoot(root).render(
@@ -64,7 +70,21 @@ ReactDOM.createRoot(root).render(
 
           <Route path="admins">
             <Route index element={<ControlPanel />} />
-            <Route path="control-panel" element={<ControlPanel />} />
+
+            <Route path="control-panel">
+              <Route index element={<ControlPanelOverview />} />
+              <Route path="overview" element={<ControlPanelOverview />} />
+
+              <Route path="problems">
+                <Route index element={<ControlPanelProblemsList />} />
+                <Route path="all" element={<ControlPanelProblemsList />} />
+                <Route path=":slug" element={<ControlPanelProblemDetails />} />
+                <Route path="create" element={<ControlPanelProblemCreate />} />
+                <Route path="update/:slug" element={<ControlPanelProblemUpdate />} />
+                <Route path="delete/:slug" element={<ControlPanelProblemDelete />} />
+              </Route>
+
+            </Route>
 
           </Route>
 
@@ -75,7 +95,7 @@ ReactDOM.createRoot(root).render(
             <Route path="start/:slug" element={<ContentStart />} />
             <Route path=":contestSlug/editor/:problemIndex" element={<ContestProblemEditor />} />
 
-          </Route> 
+          </Route>
 
 
 
