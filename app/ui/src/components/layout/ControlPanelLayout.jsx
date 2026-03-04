@@ -130,14 +130,14 @@ const ControlPanelLayout = ({ children, activeMenuOptionId }) => {
                     </Link> */}
 
 
-                    {/* <Link to={"/admins/control-panel/users"}>
+                    <Link to={"/admins/control-panel/users"}>
                         <li
                             id="users"
                             className={`transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] cursor-pointer border border-1 border-[#0a173233] hover:border-[#0a1732cc] rounded-xl px-2 lg:px-4 py-1 lg:py-2 ${activeMenuOptionId === "users" ? "scale-[1.08] border-[#0a1732]" : "opacity-[0.8]"}`}
                         >
                             Users
                         </li>
-                    </Link> */}
+                    </Link>
 
                     <Link to={"/admins/control-panel/problems"}>
                         <li
