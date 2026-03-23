@@ -149,14 +149,14 @@ const ControlPanelLayout = ({ children, activeMenuOptionId }) => {
                     </Link>
 
 
-                    {/* <Link to={"/admins/control-panel/contests"}>
+                    <Link to={"/admins/control-panel/contests"}>
                         <li
                             id="contests"
                             className={`transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] cursor-pointer border border-1 border-[#0a173233] hover:border-[#0a1732cc] rounded-xl px-2 lg:px-4 py-1 lg:py-2 ${activeMenuOptionId === "contests" ? "scale-[1.08] border-[#0a1732]" : "opacity-[0.8]"}`}
                         >
                             Contests
                         </li>
-                    </Link> */}
+                    </Link>
 
 
                     {/* <Link to={"/admins/control-panel/permissions"}>

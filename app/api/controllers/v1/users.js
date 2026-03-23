@@ -13,7 +13,7 @@ const searchUsersController = async (req, res) => {
 
     try {
 
-        const { name, user_name, email, password, mobile_no } = req.body;
+        const { name, user_name, role, email, password, mobile_no } = req.body;
 
         const clientId = req.get("client-id");
         const requestId = uuidv4();
@@ -41,6 +41,13 @@ const searchUsersController = async (req, res) => {
                 user_name: { $regex: user_name, $options: 'i' },
             };
             data.filter.$or = [...(data.filter.$or), userNameFilterCondition];
+        }
+
+        if (role) {
+            const roleFilterCondition = {
+                role: role, // It is Case Sensitive i.e. "ADMIN" and "admin" roles are different roles by it 
+            };
+            data.filter.$and = [...(data.filter.$and), roleFilterCondition];
         }
 
         if (email) {

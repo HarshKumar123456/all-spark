@@ -28,6 +28,7 @@ import ControlPanel from "./pages/admins/ControlPanel.jsx";
 import ControlPanelOverview from "./pages/admins/ControlPanelOverview.jsx";
 import ControlPanelUsersList from "./pages/admins/users/ControlPanelUsersList.jsx";
 import ControlPanelProblemsList from "./pages/admins/problems/ControlPanelProblemsList.jsx";
+import ControlPanelContestsList from "./pages/admins/contests/ControlPanelContestsList.jsx";
 import ControlPanelProblemDetails from "./pages/admins/problems/ControlPanelProblemDetails.jsx";
 import ControlPanelProblemCreate from "./pages/admins/problems/ControlPanelProblemCreate.jsx";
 import ControlPanelProblemUpdate from "./pages/admins/problems/ControlPanelProblemUpdate.jsx";
@@ -36,6 +37,10 @@ import ControlPanelUserDetails from "./pages/admins/users/ControlPanelUserDetail
 import ControlPanelUserUpdate from "./pages/admins/users/ControlPanelUserUpdate.jsx";
 import ControlPanelUserDelete from "./pages/admins/users/ControlPanelUserDelete.jsx";
 import ControlPanelUserCreate from "./pages/admins/users/ControlPanelUserCreate.jsx";
+import ControlPanelContestDelete from "./pages/admins/contests/ControlPanelContestDelete.jsx";
+import ControlPanelContestDetails from "./pages/admins/contests/ControlPanelContestDetails.jsx";
+import ControlPanelContestCreate from "./pages/admins/contests/ControlPanelContestCreate.jsx";
+import ControlPanelContestUpdate from "./pages/admins/contests/ControlPanelContestUpdate.jsx";
 
 
 ReactDOM.createRoot(root).render(
@@ -80,16 +85,6 @@ ReactDOM.createRoot(root).render(
               <Route index element={<ControlPanelOverview />} />
               <Route path="overview" element={<ControlPanelOverview />} />
 
-              <Route path="special-access">
-                <Route index element={<ControlPanelSpecialAccessList />} />
-                <Route path="all" element={<ControlPanelSpecialAccessList />} />
-              </Route>
-
-              <Route path="support-tickets">
-                <Route index element={<ControlPanelSupportTicketsList />} />
-                <Route path="all" element={<ControlPanelSupportTicketsList />} />
-              </Route>
-
 
               <Route path="users">
                 <Route index element={<ControlPanelUsersList />} />
@@ -114,13 +109,13 @@ ReactDOM.createRoot(root).render(
               <Route path="contests">
                 <Route index element={<ControlPanelContestsList />} />
                 <Route path="all" element={<ControlPanelContestsList />} />
+                <Route path=":slug" element={<ControlPanelContestDetails />} />
+                <Route path="create" element={<ControlPanelContestCreate />} />
+                <Route path="update/:slug" element={<ControlPanelContestUpdate />} />
+                <Route path="delete/:slug" element={<ControlPanelContestDelete />} />
               </Route>
 
 
-              <Route path="permissions">
-                <Route index element={<ControlPanelPermissionsList />} />
-                <Route path="all" element={<ControlPanelPermissionsList />} />
-              </Route>
             </Route>
 
           </Route>
