@@ -722,7 +722,7 @@ const ContestProblemEditor = () => {
 
                             {/* Problem Description Section - Starts Here */}
                             <div className="flex flex-col gap-8">
-                                <p className="poppins-regular black-100-text">
+                                <p className="whitespace-pre-line poppins-regular black-100-text">
                                     {problemDetails.description}
                                 </p>
                             </div>

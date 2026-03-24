@@ -247,7 +247,7 @@ const ControlPanelContestDetails = () => {
                                 <h3 className="text-lg lg:text-xl poppins-semibold">
                                     description :
                                 </h3>
-                                <p className="w-full text-wrap text-lg lg:text-xl black-80-text poppins-regular">
+                                <p className="whitespace-pre-line w-full text-wrap text-lg lg:text-xl black-80-text poppins-regular">
                                     {contestDetails?.description}
                                 </p>
                             </div>

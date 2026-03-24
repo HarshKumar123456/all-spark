@@ -299,7 +299,7 @@ const ContestDetails = () => {
 
                 <div className="w-full mt-8 px-8 lg:px-16 py-16 lg:py-8 flex flex-col-reverse lg:flex-row gap-8 justify-between">
                     {/* Contest's Description Section - Starts Here */}
-                    <div className="text-normal lg:text-xl poppins-regular black-80-text">
+                    <div className="whitespace-pre-line text-normal lg:text-xl poppins-regular black-80-text">
                         {contestDetails.description}
                     </div>
                     {/* Contest's Description Section - Ends Here */}
