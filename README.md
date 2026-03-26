@@ -95,3 +95,31 @@ An Open Source Online Coding platform
     http://localhost:8000
     ```
 
+
+
+<br />
+<br />
+
+
+## - Contributions are always welcomed here
+Ready to make your imaginations reality in our platform. Please Read our [CONTRIBUTING](CONTRIBUTING.md) Guidelines before making the Contribution to the project.
+
+
+<br />
+<br />
+
+
+## - Credits
+We uses the <b>Judge0</b> as our Code Execution Engine. 
+Please Visit: https://judge0.com/
+
+
+<br />
+<br />
+
+
+## - License
+We uses the [MIT](LICENSE) License. Please read the [LICENSE](LICENSE) file for more information.
+
+<br />
+<br />
