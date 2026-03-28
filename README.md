@@ -1,24 +1,19 @@
 # AllSpark
 
-```
-NOTE: This Repo is Under Construction.
-It is Advised to Not Copy Codes From Here Unless You Know What is Happening.
-Because You cannot Complain if it not works as of now :)
-```
-
-<br />
-<br />
-
-
-## - Description
 An Open Source Online Coding platform
 
 <br />
 <br />
 
+# Table of Contents
+- [Running Steps](#running-steps)
+- [Contributing](#contributing)
+- [Credits](#credits)
 
 
-##  Running Steps 
+Running Steps 
+-------------
+
 
 - ### First of All Your Docker Should be Installed & IPv6 Enabled
     Enable IPv6 in the Docker daemon if you haven’t already. This is typically done by editing /etc/docker/daemon.json and adding:
@@ -101,7 +96,9 @@ An Open Source Online Coding platform
 <br />
 
 
-## - Contributions are always welcomed here
+Contributing
+------------
+
 Ready to make your imaginations reality in our platform. Please Read our [CONTRIBUTING](CONTRIBUTING.md) Guidelines before making the Contribution to the project.
 
 
@@ -109,9 +106,15 @@ Ready to make your imaginations reality in our platform. Please Read our [CONTRI
 <br />
 
 
-## - Credits
-We uses the <b>Judge0</b> as our Code Execution Engine. 
+Credits
+------------
+
+- We do not own the name **AllSpark** and do not claim our right onto it. This name is taken from the Cartoon Series **Transformers Prime** and their owner company may have the right to use that name. We are using this name temporarily and this name may subject to change in future.
+
+- We uses the <b>Judge0</b> as our Code Execution Engine. 
 Please Visit: https://judge0.com/
+
+
 
 
 <br />
