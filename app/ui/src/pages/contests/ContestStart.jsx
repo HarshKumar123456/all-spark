@@ -597,11 +597,13 @@ const ContentStart = () => {
                                     Prev
                                 </button>
 
-                                <button
-                                    onClick={handleClickOnOpenEditorButton}
-                                    className="transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] bg-[#135BEB] cursor-pointer py-3 lg:py-4 px-4 lg:px-8 text-lg lg:text-xl rounded-full disabled:opacity-[0.2] text-white poppins-semibold custom-smooth-drop-shadow">
-                                    Open Editor
-                                </button>
+                                {/* Update the Open Editor to Open Contest's Problem Editor in New Tab Using the default anchor tag of HTML */}
+                                <a href={`/contests/${contestDetails.slug}/editor/${contestProblems.findIndex((problem) => problem._id === currProblemDetails._id)}`} target="blank">
+                                    <button                                    
+                                        className="transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] bg-[#135BEB] cursor-pointer py-3 lg:py-4 px-4 lg:px-8 text-lg lg:text-xl rounded-full disabled:opacity-[0.2] text-white poppins-semibold custom-smooth-drop-shadow">
+                                        Open Editor
+                                    </button>
+                                </a>
 
                                 <button
                                     onClick={handleClickOnNextProblemButton}
@@ -620,7 +622,7 @@ const ContentStart = () => {
                                     {currProblemDetails.name}
                                 </h2>
 
-                                <p className="text-lg lg:text-xl text-[#0a1732cc]">
+                                <p className="whitespace-pre-line text-lg lg:text-xl text-[#0a1732cc]">
                                     {currProblemDetails.description}
                                 </p>
                             </div>

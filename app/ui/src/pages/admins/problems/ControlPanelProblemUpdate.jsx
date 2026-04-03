@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useSocketListener } from "../../../hooks/useSocketListener";
 import ExpandCollapseControls from "../../../components/controls/ExpandCollapseControls";
 import TextInput from "../../../components/input/TextInput";
+import TextAreaInput from "../../../components/input/TextAreaInput";
 import TagsInput from "../../../components/input/TagsInput";
 import SingleSelectInput from "../../../components/input/SingleSelectInput";
 import NumericInput from "../../../components/input/NumericInput";
@@ -606,7 +607,7 @@ const ControlPanelProblemUpdate = () => {
                                 <h3 className="text-lg lg:text-xl poppins-semibold">
                                     description :
                                 </h3>
-                                <TextInput
+                                <TextAreaInput
                                     id={`description`}
                                     placeholderText={`Please give Problem's Description like: We have....`}
                                     value={problemDetails.description}
