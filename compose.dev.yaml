@@ -89,6 +89,48 @@ services:
 
 
 
+
+  ###################################################
+  # Service: queue
+  #
+  # 
+  ###################################################
+  queue:
+    build:
+      context: ./config/queue
+      target: queue-dev
+
+    volumes:
+      # Below line will sync changes from queue folder to container and vice versa used for hot reloading
+      - ./config/queue:/usr/local/app
+      # Below line Prevents node_modules to sync to host machine but we can install the packages from inside the docker container and doing that will just simply update the package.json and package-lock.json files on host machine keeping things cleaner 
+      - /usr/local/app/node_modules
+    
+    ports:
+      - 9000:9000
+
+    env_file:
+      - ./main.conf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   ###################################################
   # Service: ui
   #

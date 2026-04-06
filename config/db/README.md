@@ -1,1 +1,3 @@
 # This Handles Our DB
+
+For now we are exporting sample data to the mongodb via the exports that can be changed later on to simply API calls and for now find all the sample data in the folder `mera-mongo-data` and please note that Permissions are needed so please don't delete them and if you do so then functionality will be affected thus change after clear understanding and also change the password for the ADMIN, SUPPORT, CONTEST_SCHEDULER users and create another ADMIN, SUPPORT, CONTEST_SCHEDULER users for safety or otherwise anyone can login using default passwords and may generate false data.

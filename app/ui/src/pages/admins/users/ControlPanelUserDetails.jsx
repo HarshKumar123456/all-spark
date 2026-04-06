@@ -42,9 +42,27 @@ const ControlPanelUserDetails = () => {
         user_name: "harshku007",
         activation_status: "active",
         email: "harshkumar92200@gmail.com",
-        password: "007",
+        password: "password",
         mobile_no: "7275589766",
-        tried_problems: ["697058df5d836f6d1b37e6e7", "697058df5d836f6d1b37e6e7"],
+        tried_problems: [
+            {
+                problem_id: "69808ce921ed087cf5a28f0c",
+                status: "solved",
+                submissions:
+                    [
+                        "698f179750d9fb4a87b2c728", "698f17b150d9fb4a87b2c72f", "698f185150d9fb4a87b2c743", "698f187150d9fb4a87b2c74a", "698f18e250d9fb4a87b2c75b", "698f190950d9fb4a87b2c762", "698f192750d9fb4a87b2c769", "698f193250d9fb4a87b2c77a", "698f195f50d9fb4a87b2c781", "698f198150d9fb4a87b2c788"
+                    ],
+            }
+            ,
+            {
+                problem_id: "698c81fa2e5a28804e909bb2",
+                status: "solved",
+                submissions:
+                    [
+                        "698f1a2150d9fb4a87b2c79a", "698f1a2b50d9fb4a87b2c7a1", "698f2390e83a12770b8562f5", "698f2399e83a12770b8562fc", "698f23a5e83a12770b85630d", "698f23afe83a12770b856314", "698f2402e83a12770b856325", "698f2422e83a12770b85632c"
+                    ],
+            }
+        ],
         participated_in_contests: ["697058df5d836f6d1b37e6e7", "697058df5d836f6d1b37e6e7"],
         createdAt: "2026-01-21T04:41:03.589Z",
         updatedAt: "2026-01-21T04:41:03.589Z"
@@ -310,8 +328,8 @@ const ControlPanelUserDetails = () => {
                                             {userDetails?.tried_problems?.map((triedProblem, index) => {
                                                 return <div
                                                     key={`${userDetails?.user_name}-triedProblem-${index}`}
-                                                    className="px-4 py-1 border border-2 border-[#0a173266] text-[#0a1732] rounded-full text-xs poppins-regular">
-                                                    {triedProblem}
+                                                    className={`px-4 py-1 border border-2 border-[#0a173266] text-[#0a1732] rounded-full text-xs poppins-regular ${triedProblem?.status === "solved" ? "bg-green-400" : ""}`}>
+                                                    {triedProblem?.problem_id}
                                                 </div>
                                             })}
                                         </div>

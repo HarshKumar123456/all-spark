@@ -9,6 +9,7 @@ An Open Source Online Coding platform
 - [Running Steps](#running-steps)
 - [Contributing](#contributing)
 - [Credits](#credits)
+- [License](#license)
 
 
 Running Steps 
@@ -51,15 +52,9 @@ Running Steps
     sleep 20s
     docker compose -f compose.dev.yaml up -d redis kafka 
     sleep 20s
-    docker compose -f compose.dev.yaml up -d api
+    docker compose -f compose.dev.yaml up -d queue
     sleep 20s 
-
-    # If the below Command Get Stucked More than a Minute Then Press ( Ctrl + C ) to terminate and let the Other Process Complete and if anything breaks please report to us
-    # If You See Something like: 'LEADER_NOT_AVAILABLE' or 'REQUEST_TIMED_OUT' && then 'Something went wrong while creating topics in kafka' then no need to worry about just hit  ( Ctrl + C ) and then let all the other commands run 
-
-    docker exec -it all-spark-api-1 node temp.js
-    sleep 20s
-    docker compose -f compose.dev.yaml up --build -d
+    docker compose -f compose.dev.yaml up -d
     sleep 20s
 
 
@@ -121,7 +116,8 @@ Please Visit: https://judge0.com/
 <br />
 
 
-## - License
+License
+------------
 We uses the [MIT](LICENSE) License. Please read the [LICENSE](LICENSE) file for more information.
 
 <br />
