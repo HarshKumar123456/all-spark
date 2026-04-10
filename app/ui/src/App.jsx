@@ -9,6 +9,7 @@ import gearsIconSVG from "./assets/icons/gears-icon.svg";
 import infinityIconSVG from "./assets/icons/infinity-icon.svg";
 import keyholeIconSVG from "./assets/icons/keyhole-icon.svg";
 import serverIconSVG from "./assets/icons/server-icon.svg";
+import Statistics from "./components/statistics/Statistics";
 
 const App = () => {
 
@@ -78,12 +79,53 @@ const App = () => {
               <h2 className="text-2xl lg:text-4xl poppins-medium black-100-text">
                 Code Execution Platform
               </h2>
+
+              <a href="https://github.com/HarshKumar123456/all-spark" target="blank">
+                <button className="mt-2 flex flex-row items-center gap-2 hover:gap-4 transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] cursor-pointer py-2 lg:py-4 px-8 lg:px-16 text-base lg:text-xl rounded-full poppins-medium border border-[#0a173233]">
+                  Install Now
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={24}
+                    height={24}
+                    viewBox="0 0 32 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m5 12h21.9" />
+                    <path d="m20.2 5 7 7-7 7" />
+                  </svg>
+
+                </button>
+              </a>
+
             </div>
 
 
+
+
             <Link to={"/login"}>
-              <button className="transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] bg-[#135BEB] cursor-pointer py-3 lg:py-4 px-18 lg:px-20 text-xl lg:text-2xl text-white rounded-full poppins-semibold custom-smooth-drop-shadow">
+              <button className="flex flex-row items-center gap-2 hover:gap-4 transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] bg-[#135BEB] cursor-pointer py-3 lg:py-4 px-18 lg:px-20 text-xl lg:text-2xl text-white rounded-full poppins-semibold custom-smooth-drop-shadow">
                 Get Started
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width={24}
+                  height={24}
+                  viewBox="0 0 32 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m5 12h21.9" />
+                  <path d="m20.2 5 7 7-7 7" />
+                </svg>
+
               </button>
             </Link>
 
@@ -125,6 +167,23 @@ const App = () => {
 
         </div>
         {/* Features Section - Ends Here */}
+
+
+        {/* Statistics Section - Starts Here */}
+        <div className="my-12 lg:my-24 px-4 lg:px-16 py-4 lg:py-8 flex flex-col gap-8">
+
+          <Heading
+            text={"Performance*"}
+          />
+
+          <Statistics />
+
+
+          <p className="text-xs">
+            * When tested with fake traffic it turns out to give the above stats.
+          </p>
+        </div>
+        {/* Statistics Section - Ends Here */}
       </Layout>
     </>
   )

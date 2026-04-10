@@ -60,7 +60,7 @@ const About = () => {
                                                 https://github.com/harshkumar123456/all-spark
                                             </a>
                                         </p>
-                                        
+
 
                                     </p>
 
@@ -110,6 +110,28 @@ const About = () => {
 
                     </div>
                     {/* Project Info Section - Ends Here */}
+
+
+
+                    {/* Why it Exists? Section - Starts Here */}
+                    <div className="mx-auto w-4/5 flex flex-col gap-4 lg:text-xl poppins-regular">
+
+                        {/* Heading - Starts Here */}
+                        <Heading
+                            text={"Why it Exists?"}
+                        />
+                        {/* Heading - Ends Here */}
+
+                        {/* Details - Starts Here */}
+                        <p className="black-80-text">
+                            We saw the requirements of Businesses, Universities, Colleges etc. to encourage the Coding and problem solving thus they are very much depedent upon the existing platforms and often the existing platforms provides the solution general in usecase though they serve so good that they are being called giants here but the fact we think there is no one size fits for all and if we can customize the platform and train our candidates to only what's needed then probably we can save onto some time of our candidates and let them focus on what actually we are trying to build in them and moreover the companies can run this platform in their internal usecase and in the training process they can give the extensive company focused shape to their employees' problem solving skills and while on the other hand the Universities, Colleges and even companies can contribute to this Open Source Public to all version their unique set of problems with ofcourse hiding the actual secret sauce of them.
+                            
+                        </p>
+                        {/* Details - Ends Here */}
+
+                    </div>
+
+                    {/* Why it Exists? Section - Ends Here */}
 
                 </div>
 

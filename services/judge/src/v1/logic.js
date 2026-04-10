@@ -24,11 +24,11 @@ const consumeEvents = async () => {
         // List of All Topics to Consume to run this Service
         const listOfTopicsToConsume = [
             // Normal User Usage Events
-            
-            
+
+
             // Control Panel User Usage Events
-            
-            
+
+
             // Other Services' Event Update Events
             "judges.execution.practice.getUpdates",
             "judges.execution.contest.getUpdates",
@@ -49,11 +49,11 @@ const consumeEvents = async () => {
         // List of Functions that will be used for processing the events
         const handlingFunctions = {
             // Normal User Usage Events
-            
-            
+
+
             // Control Panel User Usage Events
-            
-            
+
+
             // Other Services' Event Update Events
             "judges.execution.practice.getUpdates": _systemGetUpdatesOfTheSubmissionOfPracticeProblem,
             "judges.execution.contest.getUpdates": _systemGetUpdatesOfTheSubmissionOfContestProblem,
@@ -91,6 +91,12 @@ const consumeEvents = async () => {
                 // Process the Event
                 if (handlingFunctions[topic]) {
                     await handlingFunctions[topic](data, metadata);
+                    // Add a Delay of 100 ms to not Rapidly Make API Calls to the Judge0
+                    const sleep = async (milliSeconds) => {
+                        return new Promise((resolve) => setTimeout(resolve, milliSeconds));
+                    };
+                    console.log("Sleeping for 100 ms.....");
+                    await sleep(100);
                 }
                 else {
                     await handleUnknownEvent(data, metadata);

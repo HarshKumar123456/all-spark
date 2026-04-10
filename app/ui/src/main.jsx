@@ -41,6 +41,9 @@ import ControlPanelContestDelete from "./pages/admins/contests/ControlPanelConte
 import ControlPanelContestDetails from "./pages/admins/contests/ControlPanelContestDetails.jsx";
 import ControlPanelContestCreate from "./pages/admins/contests/ControlPanelContestCreate.jsx";
 import ControlPanelContestUpdate from "./pages/admins/contests/ControlPanelContestUpdate.jsx";
+import ContactUs from "./pages/ContactUs.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import TNC from "./pages/TNC.jsx";
 
 
 ReactDOM.createRoot(root).render(
@@ -60,6 +63,9 @@ ReactDOM.createRoot(root).render(
 
           <Route path="about" element={<About />} />
           <Route path="careers" element={<Careers />} />
+          <Route path="contact-us" element={<ContactUs />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="tnc" element={<TNC />} />
 
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<SignUp />} />
