@@ -528,7 +528,7 @@ const controlGetSpecificContestDetailsController = async (req, res) => {
     try {
 
         const { _id } = req.body || {}; // Make req.body optional to send
-        const { slug } = req.params.slug;
+        const slug = req.params.slug;
 
         const clientId = req.get("client-id");
         const requestId = uuidv4();
