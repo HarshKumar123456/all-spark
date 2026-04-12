@@ -12,18 +12,27 @@ const participantSchema = mongoose.Schema(
             type: String,
             required: true,
         },
-        score: {
-            type: Number,
-        },
-        problems_solved: {
-            type: Number,
-        },
-        submissions: {
+        tried_problems: {
             type: [
                 {
-                    type: String,
-                },
-            ],
+                    problem_id: {
+                        type: String,
+                    },
+                    status: {
+                        type: String,
+                    },
+                    passedTestCases: {
+                        type: Number,
+                    },
+                    submissions: {
+                        type: [
+                            {
+                                type: String,
+                            },
+                        ]
+                    },
+                }
+            ]
         },
         start_time: {
             type: Date,
