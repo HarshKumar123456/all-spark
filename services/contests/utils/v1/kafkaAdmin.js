@@ -45,6 +45,7 @@ const initializeTopics = async () => {
             "contests.control.create",
             "contests.control.update",
             "contests.control.delete",
+            "contests.control.getAllParticipantsOfSpecificContest",
 
             // Other Services' Event Update Events
             "contests.startContest.complete",

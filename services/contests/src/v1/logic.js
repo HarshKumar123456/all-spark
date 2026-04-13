@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { kafka } from "../../config/v1/kafka.js";
 import { publishToRedisPubSub } from "../../utils/v1/redisPublisher.js";
-import { controlCreateContest, controlDeleteContest, controlGetSpecificContestDetails, controlSearchContests, controlUpdateContest } from "./handlers/control.js";
+import { controlCreateContest, controlDeleteContest, controlGetAllParticipantsOfSpecificContest, controlGetSpecificContestDetails, controlSearchContests, controlUpdateContest } from "./handlers/control.js";
 import { getAllContests, getSpecificContestDetails, registerForContest, searchContests, startContest } from "./handlers/normal.js";
 import { _systemSubmissionUpdatedThusUpdateParticipantDetails } from "./handlers/_system.js";
 
@@ -40,6 +40,7 @@ const consumeEvents = async () => {
             "contests.control.create",
             "contests.control.update",
             "contests.control.delete",
+            "contests.control.getAllParticipantsOfSpecificContest",
 
             // Other Services' Event Update Events
             "submissions.contest.update.complete",
@@ -62,6 +63,7 @@ const consumeEvents = async () => {
             "contests.control.create": controlCreateContest,
             "contests.control.update": controlUpdateContest,
             "contests.control.delete": controlDeleteContest,
+            "contests.control.getAllParticipantsOfSpecificContest": controlGetAllParticipantsOfSpecificContest,
 
             // Other Services' Event Update Events
             "submissions.contest.update.complete": _systemSubmissionUpdatedThusUpdateParticipantDetails,

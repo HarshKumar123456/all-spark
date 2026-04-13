@@ -1,4 +1,5 @@
 import Contest from "../../../models/v1/contests.js";
+import Participant from "../../../models/v1/participants.js";
 import { deleteFromCache, setToCache } from "../../../utils/v1/redisCacheManagement.js";
 import { publishToRedisPubSub } from "../../../utils/v1/redisPublisher.js";
 
@@ -531,6 +532,104 @@ const controlDeleteContest = async (data, metadata) => {
 };
 
 
+const controlGetAllParticipantsOfSpecificContest = async (data, metadata) => {
+
+
+     try {
+
+        // const data = {
+        //     _id: <_id>, // Id of the Contest
+        // };
+
+
+        // const metadata = {
+        //     // Not To Be Changed Fields
+
+        //     clientId: "<clientId>", // This is Websocket Id Which will be used for sending back the data to the client
+        //     requestId: "<requestId>", // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
+        //     actor: {
+        //         userId: "<userId>", // This will be used to fetch details of the user from the DB if Required
+        //         role: "<role>", // Role of user will be only one of these: ADMIN , CONTEST_SCHEDULER , SUPPORT , USER , PUBLIC
+        //         token: "<userToken>", // This is JWT Token of the User by which we will validate the aunthenticity of User and check if he or she is allowed to have the desired operation performed
+        //     },
+        //     operation: "<Any Operation Name Which is To be searched onto the Permission's Table>", // This will tell about what initial request was and processing will be done as per this 
+        //     createdAt: "<Date in ISO String Format>", // Time when this request was created
+
+        //     // To be Changed Fields
+
+        //     source: "This is The Last Service name by which this event is Generated",
+        //     updatedAt: "<Date in ISO String Format>", // Every other function will update this after its processing so that it can be tracked how much time that function took to execute
+        // };
+
+        // If this has been come from the Control Panel Of ADMIN Role Possessing User Thus Send Response That It has been Found Successfully No Need to Issue JWT
+
+
+
+
+        const { _id } = data;
+
+        const filter = {
+            _id: _id,
+        };
+
+
+        if (metadata.source === "permission-service") {
+
+
+            // Check if the Contest Exists or Not
+            const contest = await Contest.findOne(filter);
+
+
+            metadata.source = CURR_SERVICE_NAME;
+            metadata.updatedAt = (new Date()).toISOString();
+
+            if (!contest) {
+                metadata.success = false;
+                metadata.message = "Contest Not Found. Please Provide Correct Fields....";
+                await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+                return;
+            }
+
+
+
+            // Find All the Participants Related to this Contest And Send The Response Back to the ADMIN Who Requested the Details of the Participants of the Specific Contest
+
+            const allParticipantsOfSpecificContest = await Participant.find({ contest_id: _id });
+
+            if(!allParticipantsOfSpecificContest) {
+                metadata.success = false;
+                metadata.message = "Participants Not Found. Probably No one Registered or Some error Occured. Report it or Please Provide Correct Fields....";
+                await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+                return;
+            }
+
+            data = { ...data, result: allParticipantsOfSpecificContest };
+
+            metadata.success = true;
+            metadata.message = "Contest's Participants' Details Found Successfully....";
+            await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+
+            return;
+        }
+
+
+
+
+    } catch (error) {
+        console.log(error);
+        console.log("Something went wrong while handling in CONTEST SERVICE while Getting All Participants' Details of a Specific Contest Via Control Panel....");
+        metadata.success = false;
+        metadata.message = "Something Went Wrong. Report it or Please Provide All Details and/or Try Logging in again....";
+        await publishToRedisPubSub("response", JSON.stringify({ data: data, metadata: metadata }));
+        return;
+    }
+
+
+};
+
+
+
+
 
 
 export {
@@ -538,6 +637,7 @@ export {
     controlGetSpecificContestDetails,
     controlCreateContest,
     controlUpdateContest,
-    controlDeleteContest
+    controlDeleteContest,
+    controlGetAllParticipantsOfSpecificContest
 
 };

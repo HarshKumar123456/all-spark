@@ -54,11 +54,99 @@ const ControlPanelContestDetails = () => {
     ); // null or Object
 
 
+    const [allParticipantsOfSpecificContest, setAllParticipantsOfSpecificContest] = useState(
+        [
+            // {
+            //     noOfProblemsSolved: 2,
+            //     noOfTestCasesPassed: 14,
+            //     _id: '69db45561467770d53c9c97f',
+            //     contest_id: '69da00cd770bd411c444ba89',
+            //     user_id: '697058df5d876f6d1b77e6e5',
+            //     tried_problems: [
+            //         {
+            //             problem_id: '69d2773ec5aead82eb44ba8c',
+            //             status: 'solved',
+            //             passedTestCases: 7,
+            //             submissions: [
+            //                 '69db462a54e0758367cbff8f',
+            //                 '69db46cf54e0758367cbffd2',
+            //                 '69db46d754e0758367cbffd9',
+            //                 '69db472654e0758367cbffea',
+            //                 '69db473054e0758367cbfff1',
+            //                 '69db474254e0758367cc0002',
+            //                 '69db475354e0758367cc0013'
+            //             ],
+            //         },
+            //         {
+            //             problem_id: '69d2523ec5aead82eb44ba8e',
+            //             status: 'solved',
+            //             passedTestCases: 7,
+            //             submissions: [
+            //                 '69db464454e0758367cbff97',
+            //                 '69db465f54e0758367cbff9e',
+            //                 '69db468a54e0758367cbffaf',
+            //                 '69db46a154e0758367cbffc0'
+            //             ],
+            //         }
+            //     ],
+            //     createdAt: '2026-04-12T07:10:14.820Z',
+            //     updatedAt: '2026-04-12T07:18:50.073Z',
+            //     end_time: '2026-04-12T08:17:06.897Z',
+            //     start_time: '2026-04-12T07:12:06.897Z',
+            //     total_duration: 3000000
+            // },
+            // {
+            //     noOfProblemsSolved: 2,
+            //     noOfTestCasesPassed: 14,
+            //     _id: '69db45561461170d53c7c77f',
+            //     contest_id: '69da00cd440bd411c444ba89',
+            //     user_id: '697778df7d836f6d1b37e6e5',
+            //     tried_problems: [
+            //         {
+            //             problem_id: '69d2577ec5aead82eb44ba8c',
+            //             status: 'solved',
+            //             passedTestCases: 7,
+            //             submissions: [
+            //                 '69db462a54e0758367cbff8f',
+            //                 '69db46cf54e0758367cbffd2',
+            //                 '69db46d754e0758367cbffd9',
+            //                 '69db472654e0758367cbffea',
+            //                 '69db473054e0758367cbfff1',
+            //                 '69db474254e0758367cc0002',
+            //                 '69db475354e0758367cc0013'
+            //             ],
+            //         },
+            //         {
+            //             problem_id: '69d2577ec5aead82eb44ba8e',
+            //             status: 'solved',
+            //             passedTestCases: 7,
+            //             submissions: [
+            //                 '69db464454e0758367cbff97',
+            //                 '69db465f54e0758367cbff9e',
+            //                 '69db468a54e0758367cbffaf',
+            //                 '69db46a154e0758367cbffc0'
+            //             ],
+            //         }
+            //     ],
+            //     createdAt: '2026-04-12T07:10:14.820Z',
+            //     updatedAt: '2026-04-12T07:18:50.073Z',
+            //     end_time: '2026-04-12T08:17:06.897Z',
+            //     start_time: '2026-04-12T07:12:06.897Z',
+            //     total_duration: 3000000
+            // },
+        ]
+    );
+
+
+    const [isAllParticipantsOfSpecificContestLoaded, setIsAllParticipantsOfSpecificContestLoaded] = useState(false); // boolean type true or false 
+
+
 
 
     const handleClickOnUpdateContestButton = async () => {
         console.log("Inside handleClickOnUpdateContestButton()....");
-        if ((contestDetails.created_by === user._id) || true) {
+        // Only The User Who Created Should be able to Update or Delete 
+        if (contestDetails.created_by === user._id) {
             navigate(`/admins/control-panel/contests/update/${slug}`)
         }
         else {
@@ -70,11 +158,39 @@ const ControlPanelContestDetails = () => {
 
     const handleClickOnDeleteContestButton = async () => {
         console.log("Inside handleClickOnDeleteContestButton()....");
-        if ((contestDetails.created_by === user._id) || true) {
+        // Only The User Who Created Should be able to Update or Delete 
+        if (contestDetails.created_by === user._id) {
             navigate(`/admins/control-panel/contests/delete/${slug}`)
         }
         else {
             toast.error(`This cannot be deleted by You as You Didn't Created it`);
+        }
+
+    };
+
+
+    const handleClickOnGetAllPariticipantsDetailsOfContest = async () => {
+
+        // Set 'isAllParticipantsOfSpecificContestLoaded' value to 'true'
+        setIsAllParticipantsOfSpecificContestLoaded(true);
+        
+        console.log("Inside handleClickOnDeleteContestButton()....");
+        try {
+            const response = await axios.get(`${API_BASE}/contests/control/get-all-participants-details/${contestDetails._id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "client-id": clientId,
+                    "authorization": token,
+                }
+            })
+
+            toast.success(response.data.message);
+
+
+        } catch (error) {
+            console.log(error);
+            console.log("Something Went Wrong While Making the CONTESTS' API Call....", error);
+            toast.error("Something went Wrong....");
         }
 
     };
@@ -153,6 +269,131 @@ const ControlPanelContestDetails = () => {
                 toast.error(metadata.message);
                 await sleep(1000);
                 toast.error("Seems Like Contest Doesn't Exists Now....");
+                await sleep(1000);
+
+            }
+        }
+    );
+
+
+    // Listener 2: Handle Valid Get All Participants' Details of Specific Contest Response
+    useSocketListener(
+        // Selector: "Is this message for me?"
+        (msg) => msg.type?.includes('response') && msg.metadata.operation?.includes("contests.control.getAllParticipantsOfSpecificContest"),
+
+        // Handler: "What do I do with it?"
+        async (msg) => {
+            // Clear the Previous Toast Notifications
+            toast.dismiss();
+
+            const { data, metadata } = msg;
+
+            // If Get Contest's Details is Success then Save The Details For further Accesses 
+            if (metadata?.success === true) {
+                console.log(data);
+                console.log(metadata);
+
+                // Setting All Participants' Details Of Contest From Event Data
+                const allParticipantsOfSpecificContestFromEventData = data.result;
+
+                // Preprocess the All Participants and Assign Rank to them
+                const newAllParticipantsOfSpecificContest = allParticipantsOfSpecificContestFromEventData.map((participantDetails) => {
+                    
+                    let noOfProblemsSolved = 0;
+                    let noOfTestCasesPassed = 0;
+
+                    for (let index = 0; index < participantDetails.tried_problems.length; index++) {
+                        const problemDetails = participantDetails.tried_problems[index];
+                        if (problemDetails.status === "solved") {
+                            noOfProblemsSolved++;
+                            noOfTestCasesPassed += problemDetails.passedTestCases;
+                        }
+                    }
+                    
+                    
+                    const newParticipantDetails = {
+                        noOfProblemsSolved: noOfProblemsSolved,
+                        noOfTestCasesPassed: noOfTestCasesPassed,
+                        user_id: participantDetails?.user_id,
+                        tried_problems: participantDetails?.tried_problems,
+                    };
+
+                    return newParticipantDetails;
+                });
+
+
+                // Sort By Who Passed More Test Cases And if There is a Tie Then Give Priority to Who Solved With Less No of Submissions
+                const sortedAllParticipantsOfSpecificContest = newAllParticipantsOfSpecificContest.sort((a, b) => {
+
+                    if (a.passedTestCases === b.passedTestCases) {
+
+                        let firstTotalSubmissions = 0;
+                        let secondTotalSubmissions = 0;
+
+                        for (let index = 0; index < a.tried_problems.length; index++) {
+                            const triedProblem = a.tried_problems[index];
+                            firstTotalSubmissions += triedProblem.submissions;
+                        }
+
+                        for (let index = 0; index < b.tried_problems.length; index++) {
+                            const triedProblem = b.tried_problems[index];
+                            secondTotalSubmissions += triedProblem.submissions;
+                        }
+
+                        if (firstTotalSubmissions < secondTotalSubmissions) {
+                            return 1;
+                        }
+                        else if (firstTotalSubmissions > secondTotalSubmissions) {
+                            return -1;
+                        }
+                        else{
+                            return 0;
+                        }
+
+                    }
+                    else {
+                        
+                        if (a.passedTestCases < b.passedTestCases) {
+                            return 1;
+                        }
+                        else if (a.passedTestCases > b.passedTestCases) {
+                            return -1;
+                        }
+                        else{
+                            return 0;
+                        }
+
+                    }
+
+
+                });
+
+                console.log(sortedAllParticipantsOfSpecificContest);
+                
+
+
+                // Update The 'allParticipantsOfSpecificContest' 
+                setAllParticipantsOfSpecificContest(sortedAllParticipantsOfSpecificContest);
+
+                // Set 'isAllParticipantsOfSpecificContestLoaded' value to 'false'
+                setIsAllParticipantsOfSpecificContestLoaded(false);
+
+                // Show Toast Notification that Successfully Got Contest's Details
+                toast.success(metadata.message);
+
+                // Sleep for 1s to show Toast Notification
+                await sleep(1000);
+
+
+            }
+            // Else Request Processing is not done then Tell User What May Went Wrong
+            else {
+                console.log(data);
+                console.log(metadata);
+
+                toast.error(metadata.message);
+                await sleep(1000);
+                toast.error("Seems Like Contest Doesn't Exists Now or Participants not Exists....");
                 await sleep(1000);
 
             }
@@ -321,12 +562,12 @@ const ControlPanelContestDetails = () => {
                                     <>
                                         <div className="flex flex-row flex-wrap gap-4">
                                             {contestDetails?.support_team?.map((supportUser, index) => {
-                                                    return <div
-                                                        key={`${contestDetails.slug}-supportUser-${index}`}
-                                                        className="px-4 py-1 border border-2 border-[#0a173266] text-[#0a1732] rounded-full text-xs poppins-regular">
-                                                        {supportUser}
-                                                    </div>
-                                                })}
+                                                return <div
+                                                    key={`${contestDetails.slug}-supportUser-${index}`}
+                                                    className="px-4 py-1 border border-2 border-[#0a173266] text-[#0a1732] rounded-full text-xs poppins-regular">
+                                                    {supportUser}
+                                                </div>
+                                            })}
                                         </div>
                                     </>
                                 </ExpandCollapseControls.ChildContent>
@@ -345,12 +586,12 @@ const ControlPanelContestDetails = () => {
                                     <>
                                         <div className="flex flex-row flex-wrap gap-4">
                                             {contestDetails?.problems?.map((problem, index) => {
-                                                    return <div
-                                                        key={`${contestDetails.slug}-problem-${index}`}
-                                                        className="px-4 py-1 border border-2 border-[#0a173266] text-[#0a1732] rounded-full text-xs poppins-regular">
-                                                        {problem}
-                                                    </div>
-                                                })}
+                                                return <div
+                                                    key={`${contestDetails.slug}-problem-${index}`}
+                                                    className="px-4 py-1 border border-2 border-[#0a173266] text-[#0a1732] rounded-full text-xs poppins-regular">
+                                                    {problem}
+                                                </div>
+                                            })}
                                         </div>
                                     </>
                                 </ExpandCollapseControls.ChildContent>
@@ -358,7 +599,91 @@ const ControlPanelContestDetails = () => {
 
 
 
+                            <button
+                                onClick={handleClickOnGetAllPariticipantsDetailsOfContest}
+                                className="mt-2 flex flex-row items-center gap-2 hover:gap-4 transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] cursor-pointer py-2 lg:py-4 px-8 lg:px-16 text-base lg:text-xl rounded-full poppins-medium border border-[#0a173233]"
+                            >
+                                Get All Participants' Details
+                            </button>
+
+
                         </div>
+
+
+                        {
+                        (isAllParticipantsOfSpecificContestLoaded === false)
+                        ?
+
+                        <div className="w-full overflow-x-auto mt-8 px-2 lg:px-4 py-16 lg:py-8">
+                            {(allParticipantsOfSpecificContest && allParticipantsOfSpecificContest.length > 0) ? <>
+
+                                <table className="w-full overflow-x-auto table-auto">
+                                    {/* Table Heading Fields - Starts Here */}
+                                    <thead className="text-lg lg:text-2xl poppins-semibold black-100-text">
+
+                                        <tr className="text-center border border-0 border-b-1 border-[#0a173266]">
+                                            <th className="mb-4 py-4">
+                                                Rank
+                                            </th>
+                                            <th className="mb-4 py-4">
+                                                Id of User
+                                            </th>
+                                            <th className="mb-4 py-4">
+                                                Problems Solved
+                                            </th>
+                                            <th className="mb-4 py-4">
+                                                Total Test Cases Passed
+                                            </th>
+                                        </tr>
+
+                                    </thead>
+                                    {/* Table Heading Fields - Ends Here */}
+
+
+                                    {/* Table Body Data - Starts Here */}
+                                    <tbody>
+
+                                        {allParticipantsOfSpecificContest.map((participantDetails, index) => {
+
+                                            return <tr className="text-center border border-0 border-b-1 border-[#0a17321a]" key={`table-heading-${index}`}>
+                                                <td className="mb-4 py-4">
+                                                    {index + 1}
+                                                </td>
+
+                                                <td className="mb-4 py-4 text-blue-400 text-underline">
+                                                    {participantDetails.user_id}
+                                                </td>
+
+                                                <td className="mb-4 py-4">
+                                                    {participantDetails.noOfProblemsSolved}
+                                                </td>
+
+                                                <td className="mb-4 py-4">
+                                                    {participantDetails.noOfTestCasesPassed}
+                                                </td>
+
+
+                                            </tr>;
+                                        })}
+
+                                    </tbody>
+                                    {/* Table Body Data - Ends Here */}
+                                </table>
+
+                            </> : <>
+                                <div className="flex items-center justify-center text-4xl poppins-semibold">
+                                    No Participants Yet....
+                                </div>
+                            </>}
+                        </div>
+
+                        :
+                        
+                        <div className="w-full overflow-x-auto mt-8 px-2 lg:px-4 py-16 lg:py-8">
+                            <h2 className="text-4xl poppins-semibold">Loading....</h2>
+                        </div>
+
+                        }
 
                     </> : <>
                         <h2 className="text-xl">Sorry! Seems like Something Went Wrong....</h2>

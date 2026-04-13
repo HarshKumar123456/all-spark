@@ -1,6 +1,6 @@
 import express from "express";
 import { isRegisteredUserTokenIsPresentMiddleware } from "../../middlewares/v1/auth.js";
-import { controlCreateNewContestController, controlDeleteContestController, controlGetSpecificContestDetailsController, controlSearchContestsController, controlUpdateContestController, getAllContestsController, getSpecificContestDetailsController, registerLoggedInUserInSpecificContestController, searchContestsController, startSpecificContestForLoggedInUserController } from "../../controllers/v1/contests.js";
+import { controlCreateNewContestController, controlDeleteContestController, controlGetAllParticipantsOfSpecificContestController, controlGetSpecificContestDetailsController, controlSearchContestsController, controlUpdateContestController, getAllContestsController, getSpecificContestDetailsController, registerLoggedInUserInSpecificContestController, searchContestsController, startSpecificContestForLoggedInUserController } from "../../controllers/v1/contests.js";
 
 // Creating The Router 
 const contestsRouter = express.Router();
@@ -134,6 +134,17 @@ contestsRouter.put("/control/update", isRegisteredUserTokenIsPresentMiddleware, 
  * @method DELETE
  */
 contestsRouter.delete("/control/delete", isRegisteredUserTokenIsPresentMiddleware, controlDeleteContestController);
+
+
+
+
+/**
+ * @contestsRouter /api/v1/contests/control/get-all-participants-details/:contest_id
+ * @description Get All Participants' Details of a Specific Contest
+ * @access private
+ * @method GET
+ */
+contestsRouter.get("/control/get-all-participants-details/:contest_id", isRegisteredUserTokenIsPresentMiddleware, controlGetAllParticipantsOfSpecificContestController);
 
 
 

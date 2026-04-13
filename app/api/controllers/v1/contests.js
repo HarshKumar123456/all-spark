@@ -838,6 +838,75 @@ const controlDeleteContestController = async (req, res) => {
 };
 
 
+const controlGetAllParticipantsOfSpecificContestController = async (req, res) => {
+
+    try {
+
+
+        const contest_id = req.params.contest_id;
+
+        if (!(contest_id)) {
+            return res.status(400).json({
+                success: false,
+                message: "contest_id is Required to Get All Participants' Details of a Specific Contest....",
+            });
+        }
+
+        const clientId = req.get("client-id");
+        const requestId = uuidv4();
+        const createdAt = (new Date()).toISOString();
+
+        const userToken = req.headers.authorization;
+
+
+        const data = {
+            _id: contest_id
+        };
+
+
+
+
+        const metadata = {
+            // Not To Be Changed Fields
+
+            clientId: clientId, // This is Websocket Id Which will be used for sending back the data to the client
+            requestId: requestId, // This will be request id generated randomly but uniquely to traverse the path through which our request has been processed around in the system
+            actor: {
+                token: userToken,
+            },
+            operation: "contests.control.getAllParticipantsOfSpecificContest", // This will tell about what initial request was and processing will be done as per this 
+            createdAt: createdAt, // Time when this request was created
+
+            // To be Changed Fields
+
+            source: CURR_SERVICE_NAME,
+            updatedAt: (new Date()).toISOString(), // Every other function will update this after its processing so that it can be tracked how much time that function took to execute
+        };
+
+        const topic = DEFAULT_TOPIC_TO_PUBLISH;
+        const partition = getPartition();
+
+        await sendEvent(topic, partition, data, metadata);
+        return res.status(202).json({
+            success: true,
+            message: "Get All Participants' Details Of a Specific Contest Request From Control Panel is Accepted Successfully....",
+        });
+
+    } catch (error) {
+
+        console.log(error);
+        console.log("Something went wrong while handling in API while Getting All Participants' Details Of a Specific Contest From Control Panel....");
+
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong while Getting All Participants' Details Of a Specific Contest From Control Panel....",
+            error
+        });
+
+    }
+
+};
+
 
 
 
@@ -862,4 +931,5 @@ export {
     controlCreateNewContestController,
     controlUpdateContestController,
     controlDeleteContestController,
+    controlGetAllParticipantsOfSpecificContestController
 }
