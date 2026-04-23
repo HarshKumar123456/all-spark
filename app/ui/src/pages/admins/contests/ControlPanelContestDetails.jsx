@@ -325,7 +325,7 @@ const ControlPanelContestDetails = () => {
                 // Sort By Who Passed More Test Cases And if There is a Tie Then Give Priority to Who Solved With Less No of Submissions
                 const sortedAllParticipantsOfSpecificContest = newAllParticipantsOfSpecificContest.sort((a, b) => {
 
-                    if (a.passedTestCases === b.passedTestCases) {
+                    if (a.noOfTestCasesPassed === b.noOfTestCasesPassed) {
 
                         let firstTotalSubmissions = 0;
                         let secondTotalSubmissions = 0;
@@ -353,10 +353,10 @@ const ControlPanelContestDetails = () => {
                     }
                     else {
                         
-                        if (a.passedTestCases < b.passedTestCases) {
+                        if (a.noOfTestCasesPassed < b.noOfTestCasesPassed) {
                             return 1;
                         }
-                        else if (a.passedTestCases > b.passedTestCases) {
+                        else if (a.noOfTestCasesPassed > b.noOfTestCasesPassed) {
                             return -1;
                         }
                         else{

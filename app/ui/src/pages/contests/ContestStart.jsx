@@ -568,8 +568,157 @@ const ContentStart = () => {
 
                     {/* General Instructions Section - Starts Here */}
                     {visiblePart.generalInstructions ? <>
-                        <div className="text-xl poppins-regular">
-                            Bhai Cheating Mat Karna Bas :)
+                        <div className="text-base poppins-regular">
+
+                            <h2 className="text-4xl poppins-semibold">
+                                General Instructions
+                            </h2>
+
+                            <p className="py-4 mb-16 text-xl black-80-text">
+                                 
+                                Here are some General Instructions to help you understand the Platform Use and General Practices to Give the Contest.
+                            </p>
+
+
+
+                            {/* Instructions - Starts Here */}
+
+                            <div className="flex flex-col gap-8">
+
+
+                                {/* Programming Language Change - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Programming Language Change
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        We supports widely used languages and to give the Contest in your Preferred Programming Language Please Change the Language from the Dropdown Selection Option given on the top of the Problem Editor.
+                                    </p>
+
+
+                                </div>
+                                {/* Programming Language Change - Ends Here */}
+
+
+                                {/* Submissions - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Submissions
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        Only the Private Test Case Submissions are Considered for the Evaluation.
+                                        You can submit solutions as many times as you'd like, there are no penalties for incorrect submissions. Only your best correct submission will be considered. But please note that if your submissions passes the same test cases as the other participant then the one who has less number of submissions will be awarded higher score thus please run your submissions first locally and then submit them.
+                                    </p>
+
+
+                                </div>
+                                {/* Submissions - Ends Here */}
+
+
+
+                                {/* Correct Contest and Username - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Correct Contest and Username
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        Please ensure that you see your username and the Contest's Name Correctly at the Top left corner of the Contest page and if you found something else then please seek help at the contest support via Help option on sidebar.
+                                    </p>
+
+
+                                </div>
+                                {/* Correct Contest and Username - Ends Here */}
+
+
+
+
+                                {/* Navigate the Problems - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Navigate the Problems
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        As soon as contest starts you will see the Problems' List below the Problems Option on the Sidebar and To Navigate the Problems you can click the Problems' name or can click the Prev or Next Button on the Problem's Details Page.
+                                    </p>
+
+
+                                </div>
+                                {/* Navigate the Problems - Ends Here */}
+
+
+
+                                {/* Solving the Problems - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Solving the Problems
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        You can write the Code on the Editor given By Us By Clicking the Open Editor Button on the Problem's Details Page for the Specific Problem of the Contest.
+                                    </p>
+
+
+                                </div>
+                                {/* Solving the Problems - Ends Here */}
+
+
+
+
+
+
+
+                                {/* How to Seek Help - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        How to Seek Help
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        To Seek Help Related to this Contest Please Click on the Help Option on Sidebar and See if your Concern is Listed There or Not and if Not then Please Try Mailing the support contact there or Email us from our Contact Page and Please mention the Issue along with Screenshots if possible and Please mention the Contest Name and Your Username and these are mandatory to mention.
+                                    </p>
+
+
+                                </div>
+                                {/* How to Seek Help - Ends Here */}
+
+
+
+
+                                {/* Time to Complete - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Time to Complete
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        You can see the Contest's Timer Running at the Top right Corner of your Contest Page and this depicts the Time You have Left to Complete the Contest and all the submissions whithin this time frame are considered and once this timer ends the submissions are not considered for your evaluation.
+                                    </p>
+
+
+                                </div>
+                                {/* Time to Complete - Ends Here */}
+
+
+
+
+
+
+                            </div>
+
+
+                            {/* Instructions - Ends Here */}
+
 
                         </div>
                     </> : <></>}
@@ -578,8 +727,93 @@ const ContentStart = () => {
 
                     {/* Help Section - Starts Here */}
                     {visiblePart.help ? <>
-                        <div className="text-xl poppins-regular">
-                            Bhai Help Ke Liye main Hoon na :)
+                        <div className="text-base poppins-regular">
+
+                            <h2 className="text-4xl poppins-semibold">
+                                Help
+                            </h2>
+
+                            <p className="py-4 mb-16 text-xl black-80-text">
+                                Before seeking help from the Support Please Read the Below FAQs and if you have something other issue than these then please Contact Us via our Official E-mail Given on the Contact us Page by Writing Subject name "Contest Help - &lt;Contest Name&gt; | &lt;Issue Name&gt;". 
+                            </p>
+
+
+
+
+                            {/* FAQs - Starts Here */}
+                            <div className="flex flex-col gap-8">
+
+
+                                {/* Submissions Pending Status Doesn't resolve ? - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Submissions Pending Status Doesn't resolve ?
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        If your'e seeing Submissions Status Pending for a long time then Please Refresh the Page, logout and login again and then Please make another Submission and if the Issue persists then Please Contact us and mention the Name of the contest along with your username in the Body of the Mail and Please Attach Screenshots if possible and the Issue name in the Subject will be "Submissions Pending Doesn't Resolve".
+                                    </p>
+
+
+                                </div>
+                                {/* Submissions Pending Status Doesn't resolve ? - Ends Here */}
+
+
+
+                                {/* Submissions Cannot be Made ? - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Submissions Cannot be Made ?
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        If your'e seeing Submissions Cannot be Made Status at the Bottom Notifications then Please try Logout and Login Again and then Make the Submissions Again and if This doesn't work then Please Contact us and mention the Name of the contest along with your username in the Body of the Mail and Please Attach Screenshots if possible and the Issue name in the Subject will be "Submissions not Made".
+                                    </p>
+
+
+                                </div>
+                                {/* Submissions Cannot be Made ? - Ends Here */}
+
+
+                                {/* Unable to Start the Contest ? - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Unable to Start the Contest ?
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        If your'e Not able to start the Contest Please make sure you are attempting the right contest for which you have registered and if you are not able to start the Contest after registering then Please Try Logout and Login again and if this doesn't works then Please contact Us and mention the Name of the contest along with your username in the Body of the Mail and Please Attach Screenshots if possible and the Issue name in the Subject will be "Unable to Start".
+                                    </p>
+
+
+                                </div>
+                                {/* Unable to Start the Contest ? - Ends Here */}
+
+
+
+
+                                {/* Unable to see the Contest Problems ? - Starts Here */}
+                                <div className="flex flex-col gap-1">
+
+                                    <h3 className="text-xl poppins-semibold">
+                                        Unable to see the Contest Problems ?
+                                    </h3>
+
+                                    <p className="black-80-text">
+                                        If your'e Not able to see the Contest's Problems Please Refresh the Page, Try Clearing the Cache and Logout and login again and also close the Browser and then Start Again and if any of the solutions prescribed doesn't works then please Contact Us and mention the Name of the contest along with your username in the Body of the Mail and Please Attach Screenshots if possible and the Issue name in the Subject will be "Problems Not Visible".
+                                    </p>
+
+
+                                </div>
+                                {/* Unable to see the Contest Problems ? - Ends Here */}
+
+                            </div>
+                            {/* FAQs - Starts Here */}
+
+
                         </div>
                     </> : <></>}
                     {/* Help Section - Ends Here */}
@@ -599,7 +833,7 @@ const ContentStart = () => {
 
                                 {/* Update the Open Editor to Open Contest's Problem Editor in New Tab Using the default anchor tag of HTML */}
                                 <a href={`/contests/${contestDetails.slug}/editor/${contestProblems.findIndex((problem) => problem._id === currProblemDetails._id)}`} target="blank">
-                                    <button                                    
+                                    <button
                                         className="transition-all duration-[0.4s] ease-in-out hover:scale-[1.02] active:scale-[0.8] bg-[#135BEB] cursor-pointer py-3 lg:py-4 px-4 lg:px-8 text-lg lg:text-xl rounded-full disabled:opacity-[0.2] text-white poppins-semibold custom-smooth-drop-shadow">
                                         Open Editor
                                     </button>
